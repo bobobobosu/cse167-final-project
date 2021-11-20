@@ -24,29 +24,93 @@ uniform vec4 lightcolors[ maximal_allowed_lights ];
 out vec4 fragColor;
 
 
-void main (void){
+void main (void) {
     if (!enablelighting){
         // Default normal coloring (you don't need to modify anything here)
         vec3 N = normalize(normal);
         fragColor = vec4(0.5f*N + 0.5f , 1.0f);
     } else {
-        
+
+        // Convert everything into a global position
+        // Global position
+        vec4 globalPosition = inverse(view) * (modelview * position);
+        // Global normal
+        vec3 n = normalize(normal.xyz);
+        mat3 view3d = transpose(inverse(mat3(view[0].xyz, view[1].xyz, view[2].xyz)));
+        mat3 modelView3d = transpose(inverse(mat3(modelview[0].xyz, modelview[1].xyz, modelview[2].xyz)));
+        vec3 globalNormal = normalize(inverse(view3d) * (modelView3d * n));
+        // Global eye position
+        vec4 globalEyePos = inverse(view)[3];
+        // Global unit vector pointing toward eye
+        vec3 globalV = normalize(globalEyePos.xyz - globalPosition.xyz);
+
         // HW3: You will compute the lighting here.
-        fragColor = emision;
-        for (int i=0 ; i<nlights ; i++){
-            vec4 normal_eye4 = normalize(transpose(inverse(modelview)) * vec4(normal, 0f));
-            vec4 lightposition_eye4 = normalize(view * lightpositions[i]) ;
-            vec4 toward_eye4 = -1 * normalize(modelview * position - vec4(0f,0f,0f,1f));
+        vec4 color = emision;
 
-            vec3 normal_eye = normalize(normal_eye4.xyz);
-            vec3 lightposition_eye =  normalize(lightposition_eye4.xyz) ;
-            vec3 toward_eye =  normalize(toward_eye4.xyz);
+        for(int j = 0; j < nlights; j++) {
 
-            float ambient_coeff = 1;
-            float diffuse_coeff = max(dot(normal_eye,lightposition_eye),0.);
-            float specular_coeff = max(dot(normal_eye,normalize(toward_eye + lightposition_eye)),0.);
+            // Add ambient
+            vec4 iterationColor = ambient;
 
-            fragColor += lightcolors[i] * (ambient * ambient_coeff + diffuse * diffuse_coeff + specular * pow(specular_coeff, shininess));
+            // Add diffuse
+            vec3 l_j = normalize(globalPosition.w * lightpositions[j].xyz - lightpositions[j].w * globalPosition.xyz);
+            iterationColor += diffuse * max(dot(globalNormal, l_j), 0);
+
+            // Add specular
+            vec3 h_j = normalize(globalV + l_j);
+            iterationColor += specular * pow(max(dot(globalNormal, h_j), 0), shininess);
+
+            // Multiply Light Color
+            iterationColor = iterationColor * lightcolors[j];
+            color += iterationColor;
         }
+
+        fragColor = vec4(color);
     }
+
+/*
+    // View in the model coordinate
+    vec4 modelCoorView = inverse(modelview)[3];
+
+    // Unit vector made using 2 model coordinate positions pointing towards the viewer
+    vec3 v = normalize(modelCoorView.xyz - position.xyz);
+
+    if (!enablelighting){
+        // Default normal coloring (you don't need to modify anything here)
+        vec3 N = normalize(normal);
+        fragColor = vec4(0.5f*N + 0.5f , 1.0f);
+    } else {
+        // HW3: You will compute the lighting here.
+        vec4 color = emision;
+
+        // normal 
+        vec3 modelCoorN = normalize(normal);
+        for(int j = 0; j < nlights; j++) {
+
+            // Add ambient
+            vec4 iterationColor = ambient;
+
+            // Add diffuse
+            // Convert light position coordinates from global to eye to model
+            vec4 modelCoorLightPos = inverse(modelview) * (view * lightpositions[j]);
+            
+            // Vector calculated using position (model coordinate) and model coordinate based light position.
+            vec3 l_j = normalize(position.w * modelCoorLightPos.xyz - modelCoorLightPos.w * position.xyz);
+
+            // Dot product of model
+            iterationColor += diffuse * max(dot(modelCoorN, l_j), 0);
+
+            // Add specular
+            // Vector calculated with v and l_j
+            vec3 h_j = normalize(v + l_j);
+            iterationColor += specular * max(pow(dot(modelCoorN, h_j), shininess), 0);
+
+            // Multiply Light Color
+            iterationColor = iterationColor * lightcolors[j];
+            color += iterationColor;
+        }
+
+        fragColor = vec4(color);
+    }
+*/
 }
