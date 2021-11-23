@@ -15,7 +15,6 @@
 #include "Screenshot.h"
 #include "Scene.h"
 
-
 static const int width = 800;
 static const int height = 600;
 static const char* title = "Scene viewer";
@@ -59,7 +58,6 @@ void display(void){
     
     glutSwapBuffers();
     glFlush();
-    
 }
 
 void saveScreenShot(const char* filename = "test.png"){
@@ -94,7 +92,8 @@ void keyboard(unsigned char key, int x, int y){
             glutPostRedisplay();
             break;
         case 'l':
-            scene.shader -> enablelighting = !(scene.shader -> enablelighting);
+            scene.surfaceShader -> enablelighting = !(scene.surfaceShader -> enablelighting);
+            //scene.depthShader->enableshadows = !(scene.depthShader->enableshadows);
             glutPostRedisplay();
             break;
         case ' ':

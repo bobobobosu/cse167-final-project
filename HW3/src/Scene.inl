@@ -42,12 +42,12 @@ void Scene::init(void){
     material["turquoise"] -> specular = vec4(0.3f, 0.3f, 0.3f, 1.0f);
     material["turquoise"] -> shininess = 100.0f;
     
-    material["bulb"] = new Material;
-    material["bulb"] -> ambient = vec4(0.0f, 0.0f, 0.0f, 1.0f);
-    material["bulb"] -> diffuse = vec4(0.0f, 0.0f, 0.0f, 1.0f);
-    material["bulb"] -> specular = vec4(1.0f, 1.0f, 1.0f, 1.0f);
-    material["bulb"] -> emision = vec4(1.0f,0.2f,0.1f,1.0f);
-    material["bulb"] -> shininess = 200.0f;
+    //material["bulb"] = new Material;
+    //material["bulb"] -> ambient = vec4(0.0f, 0.0f, 0.0f, 1.0f);
+    //material["bulb"] -> diffuse = vec4(0.0f, 0.0f, 0.0f, 1.0f);
+    //material["bulb"] -> specular = vec4(1.0f, 1.0f, 1.0f, 1.0f);
+    //material["bulb"] -> emision = vec4(1.0f,0.2f,0.1f,1.0f);
+    //material["bulb"] -> shininess = 200.0f;
     
     // Create a model palette
     model["teapot1"] = new Model;
@@ -59,21 +59,24 @@ void Scene::init(void){
     model["table piece"] = new Model;
     model["table piece"] -> geometry = geometry["cube"];
     model["table piece"] -> material = material["wood"];
+    model["floor"] = new Model;
+    model["floor"]->geometry = geometry["cube"];
+    model["floor"]->material = material["wood"];
     model["bunny"] = new Model;
     model["bunny"] -> geometry = geometry["bunny"];
     model["bunny"] -> material = material["turquoise"];
-    model["bulb"] = new Model;
-    model["bulb"] -> geometry = geometry["cube"];
-    model["bulb"] -> material = material["bulb"];
+    //model["bulb"] = new Model;
+    //model["bulb"] -> geometry = geometry["cube"];
+    //model["bulb"] -> material = material["bulb"];
     
     // Create a light palette
     light["sun"] = new Light;
     light["sun"] -> position = vec4(3.0f,2.0f,1.0f,0.0f);
     light["sun"] -> color = 1.0f*vec4(1.0f,1.0f,1.0f,1.0f);
     
-    light["bulb"] = new Light;
-    light["bulb"] -> position = vec4(0.0f,2.0f,0.0f,0.0f);
-    light["bulb"] -> color = 1.5f * vec4(1.0f,0.2f,0.1f,1.0f);
+    //light["bulb"] = new Light;
+    //light["bulb"] -> position = vec4(0.0f,2.0f,0.0f,0.0f);
+    //light["bulb"] -> color = 1.5f * vec4(1.0f,0.2f,0.1f,1.0f);
     
     // Build the scene graph
     node["table"] = new Node;
@@ -82,6 +85,7 @@ void Scene::init(void){
     node["teapot1"] = new Node;
     node["teapot2"] = new Node;
     node["bunny"] = new Node;
+    node["floor"] = new Node;
     
     
     node["table"] -> childnodes.push_back( node["table top"] );
@@ -113,12 +117,21 @@ void Scene::init(void){
     node["bunny"] -> models.push_back( model["bunny"] );
     node["bunny"] -> modeltransforms.push_back( scale(vec3(0.8f)) * translate(vec3(0.0f,1.0f,0.0f)) );
     
-    node["world"] -> childnodes.push_back( node["table"] );
+    //node["world"] -> childnodes.push_back( node["table"] );
+    //node["world"] -> childtransforms.push_back( mat4(1.0f) );
+    //node["world"] -> childnodes.push_back( node["bunny"] );
+    //node["world"] -> childtransforms.push_back( translate(vec3(-1.8f,0.0f,0.0f)) * rotate( 90.0f*float(M_PI)/180.0f, vec3(0.0f, 1.0f, 0.0f) ));
+    node["floor"]->childnodes.push_back(node["table"]);
+    node["floor"]->childtransforms.push_back(mat4(1.0f));
+    node["floor"]->childnodes.push_back(node["bunny"]);
+    node["floor"]->childtransforms.push_back(translate(vec3(-1.8f, 0.0f, 0.0f))* rotate(90.0f * float(M_PI) / 180.0f, vec3(0.0f, 1.0f, 0.0f)));
+    node["floor"]->models.push_back(model["floor"]);
+    node["floor"]->modeltransforms.push_back(scale(vec3(100.0f, 0.0f, 100.0f)));
+
+    node["world"] -> childnodes.push_back( node["floor"] );
     node["world"] -> childtransforms.push_back( mat4(1.0f) );
-    node["world"] -> childnodes.push_back( node["bunny"] );
-    node["world"] -> childtransforms.push_back( translate(vec3(-1.8f,0.0f,0.0f)) * rotate( 90.0f*float(M_PI)/180.0f, vec3(0.0f, 1.0f, 0.0f) ));
-    node["world"] -> models.push_back( model["bulb"] );
-    node["world"] -> modeltransforms.push_back( translate(vec3(0.0f,2.0f,0.0f))*scale(vec3(0.1f)) );
+    //node["world"] -> models.push_back( model["bulb"] );
+    //node["world"] -> modeltransforms.push_back( translate(vec3(0.0f,2.0f,0.0f))*scale(vec3(0.1f)) );
     
     // Put a camera
     camera = new Camera;
@@ -127,10 +140,17 @@ void Scene::init(void){
     camera -> up_default = vec3( 0.0f, 1.0f, 0.0f );
     camera -> reset();
     
-    // Initialize shader
-    shader = new SurfaceShader;
-    shader -> read_source( "shaders/projective.vert", "shaders/lighting.frag" );
-    shader -> compile();
-    glUseProgram(shader -> program);
-    shader -> initUniforms();
+    // Initialize shaders
+    surfaceShader = new SurfaceShader;
+    //surfaceShader -> read_source( "shaders/projective.vert", "shaders/lighting.frag" );
+    surfaceShader->read_source("shaders/projective.vert", "shaders/depth.frag");
+    surfaceShader -> compile();
+    glUseProgram(surfaceShader -> program);
+    surfaceShader -> initUniforms();
+
+    //depthShader = new DepthShader;
+    //depthShader->read_source("shaders/projective.vert", "shaders/depth.frag");
+    //depthShader->compile();
+    //glUseProgram(depthShader->program);
+    //depthShader->initUniforms();
 }

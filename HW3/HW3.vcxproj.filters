@@ -28,6 +28,9 @@
     <None Include="shaders\projective.vert">
       <Filter>Shaders</Filter>
     </None>
+    <None Include="shaders\depth.frag">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Camera.cpp">
@@ -84,6 +87,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\SurfaceShader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\DepthShader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

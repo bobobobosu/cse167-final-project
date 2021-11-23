@@ -15,6 +15,7 @@
 
 #include "Camera.h"
 #include "SurfaceShader.h"
+#include "DepthShader.h"
 #include "Light.h"
 #include "Geometry.h"
 #include "Material.h"
@@ -34,7 +35,8 @@ public:
 class Scene {
 public:
     Camera* camera;
-    SurfaceShader* shader;
+    SurfaceShader* surfaceShader;
+    //DepthShader* depthShader;
     // The following are containers of objects serving as the object palettes.
     // The containers store pointers so that they can also store derived class objects.
     std::map< std::string, Geometry* > geometry;
@@ -78,7 +80,8 @@ public:
             delete entry.second;
         }
         delete camera;
-        delete shader;
+        delete surfaceShader;
+        //delete depthShader;
     }
 };
 

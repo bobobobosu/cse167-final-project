@@ -77,6 +77,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="shaders\depth.frag" />
     <None Include="shaders\lighting.frag" />
     <None Include="shaders\projective.vert" />
     <None Include="src\Scene.inl" />
@@ -91,6 +92,7 @@
   <ItemGroup>
     <ClInclude Include="include\Camera.h" />
     <ClInclude Include="include\Cube.h" />
+    <ClInclude Include="include\DepthShader.h" />
     <ClInclude Include="include\FreeImage.h" />
     <ClInclude Include="include\Geometry.h" />
     <ClInclude Include="include\hw3AutoScreenshots.h" />

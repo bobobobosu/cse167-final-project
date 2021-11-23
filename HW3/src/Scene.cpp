@@ -13,17 +13,20 @@ using namespace glm;
 void Scene::draw(void) {
     // Pre-draw sequence: assign uniforms that are the same for all Geometry::draw call.  These uniforms include the camera view, proj, and the lights.  These uniform do not include modelview and material parameters.
     camera->computeMatrices();
-    shader->view = camera->view;
-    shader->projection = camera->proj;
-    shader->nlights = light.size();
-    shader->lightpositions.resize(shader->nlights);
-    shader->lightcolors.resize(shader->nlights);
+    surfaceShader->view = camera->view;
+    surfaceShader->projection = camera->proj;
+    surfaceShader->nlights = light.size();
+    surfaceShader->lightpositions.resize(surfaceShader->nlights);
+    surfaceShader->lightcolors.resize(surfaceShader->nlights);
     int count = 0;
     for (std::pair<std::string, Light*> entry : light) {
-        shader->lightpositions[count] = (entry.second)->position;
-        shader->lightcolors[count] = (entry.second)->color;
+        surfaceShader->lightpositions[count] = (entry.second)->position;
+        surfaceShader->lightcolors[count] = (entry.second)->color;
         count++;
     }
+
+    //depthShader->view = camera->view;
+    //depthShader->projection = camera->proj;
 
     // Define stacks for depth-first search (DFS)
     std::stack < Node* > dfs_stack;
@@ -39,12 +42,6 @@ void Scene::draw(void) {
     dfs_stack.push(cur);
     matrix_stack.push(cur_VM);
     while (!dfs_stack.empty()) {
-        // Detect whether the search runs into infinite loop by checking whether the stack is longer than the size of the graph.
-        // Note that, at any time, the stack does not contain repeated element.
-        //if (dfs_stack.size() > node.size()) {
-            //std::cerr << "Error: The scene graph has a closed loop." << std::endl;
-            //exit(-1);
-        //}
 
         // top-pop the stacks
         cur = dfs_stack.top();        dfs_stack.pop();
@@ -57,11 +54,12 @@ void Scene::draw(void) {
             // Prepare to draw the geometry. Assign the modelview and the material.
 
             // (HW3 hint: you should do something here)
-            shader->modelview = cur_VM * (cur->modeltransforms[i]); // HW3: Without updating cur_VM, modelview would just be camera's view matrix.
-            shader->material = (cur->models[i])->material;
-
+            surfaceShader->modelview = cur_VM * (cur->modeltransforms[i]); // HW3: Without updating cur_VM, modelview would just be camera's view matrix.
+            surfaceShader->material = (cur->models[i])->material;
+            //depthShader->modelview = cur_VM * (cur->modeltransforms[i]); // HW3: Without updating cur_VM, modelview would just be camera's view matrix.
             // The draw command
-            shader->setUniforms();
+            surfaceShader->setUniforms();
+            //depthShader->setUniforms();
             (cur->models[i])->geometry->draw();
         }
 
