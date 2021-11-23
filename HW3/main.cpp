@@ -92,8 +92,8 @@ void keyboard(unsigned char key, int x, int y){
             glutPostRedisplay();
             break;
         case 'l':
-            scene.surfaceShader -> enablelighting = !(scene.surfaceShader -> enablelighting);
-            //scene.depthShader->enableshadows = !(scene.depthShader->enableshadows);
+            //scene.surfaceShader -> enablelighting = !(scene.surfaceShader -> enablelighting);
+            scene.depthShader->enableshadows = !(scene.depthShader->enableshadows);
             glutPostRedisplay();
             break;
         case ' ':

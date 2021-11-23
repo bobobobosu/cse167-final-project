@@ -141,16 +141,15 @@ void Scene::init(void){
     camera -> reset();
     
     // Initialize shaders
-    surfaceShader = new SurfaceShader;
+    //surfaceShader = new SurfaceShader;
     //surfaceShader -> read_source( "shaders/projective.vert", "shaders/lighting.frag" );
-    surfaceShader->read_source("shaders/projective.vert", "shaders/depth.frag");
-    surfaceShader -> compile();
-    glUseProgram(surfaceShader -> program);
-    surfaceShader -> initUniforms();
+    //surfaceShader -> compile();
+    //glUseProgram(surfaceShader -> program);
+    //surfaceShader -> initUniforms();
 
-    //depthShader = new DepthShader;
-    //depthShader->read_source("shaders/projective.vert", "shaders/depth.frag");
-    //depthShader->compile();
-    //glUseProgram(depthShader->program);
-    //depthShader->initUniforms();
+    depthShader = new DepthShader;
+    depthShader->read_source("shaders/projective.vert", "shaders/depth.frag");
+    depthShader->compile();
+    glUseProgram(depthShader->program);
+    depthShader->initUniforms();
 }

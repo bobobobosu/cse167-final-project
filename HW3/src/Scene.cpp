@@ -8,25 +8,54 @@ Scene.cpp contains the implementation of the draw command
 // The scene init definition 
 #include "Scene.inl"
 
-
 using namespace glm;
+
+const GLuint SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
+void Scene::drawShadowTexture(void) {
+    GLuint depthMapFBO;
+    GLuint depthMap;
+    // Generate a frame buffer objet.
+    glGenFramebuffers(1, &depthMapFBO);
+    glGenTextures(1, &depthMap);
+    glBindTexture(GL_TEXTURE_2D, depthMap);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SHADOW_WIDTH,
+        SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+
+    // Create a 2D texture for the depth map.
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        // Attach depthMap to depthMapFBO’s depth buffer
+    glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+    // ramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
+    glDrawBuffer(GL_NONE); // Omitting color data
+    glReadBuffer(GL_NONE); // Omitting color data
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
 void Scene::draw(void) {
     // Pre-draw sequence: assign uniforms that are the same for all Geometry::draw call.  These uniforms include the camera view, proj, and the lights.  These uniform do not include modelview and material parameters.
     camera->computeMatrices();
-    surfaceShader->view = camera->view;
-    surfaceShader->projection = camera->proj;
-    surfaceShader->nlights = light.size();
-    surfaceShader->lightpositions.resize(surfaceShader->nlights);
-    surfaceShader->lightcolors.resize(surfaceShader->nlights);
-    int count = 0;
-    for (std::pair<std::string, Light*> entry : light) {
-        surfaceShader->lightpositions[count] = (entry.second)->position;
-        surfaceShader->lightcolors[count] = (entry.second)->color;
-        count++;
-    }
+    //surfaceShader->view = camera->view;
+    //surfaceShader->projection = camera->proj;
+    //surfaceShader->nlights = light.size();
+    //surfaceShader->lightpositions.resize(surfaceShader->nlights);
+    //surfaceShader->lightcolors.resize(surfaceShader->nlights);
+    //int count = 0;
+    //for (std::pair<std::string, Light*> entry : light) {
+    //    surfaceShader->lightpositions[count] = (entry.second)->position;
+    //    surfaceShader->lightcolors[count] = (entry.second)->color;
+    //    count++;
+    //}
 
-    //depthShader->view = camera->view;
-    //depthShader->projection = camera->proj;
+    depthShader->setUniforms();
+    this->drawShadowTexture();    
+    depthShader->view = camera->view;
+    depthShader->projection = camera->proj;
+    for (std::pair<std::string, Light*> entry : light) {
+        depthShader->light_position = (entry.second)->position;
+    }
 
     // Define stacks for depth-first search (DFS)
     std::stack < Node* > dfs_stack;
@@ -54,12 +83,12 @@ void Scene::draw(void) {
             // Prepare to draw the geometry. Assign the modelview and the material.
 
             // (HW3 hint: you should do something here)
-            surfaceShader->modelview = cur_VM * (cur->modeltransforms[i]); // HW3: Without updating cur_VM, modelview would just be camera's view matrix.
-            surfaceShader->material = (cur->models[i])->material;
-            //depthShader->modelview = cur_VM * (cur->modeltransforms[i]); // HW3: Without updating cur_VM, modelview would just be camera's view matrix.
+            //surfaceShader->modelview = cur_VM * (cur->modeltransforms[i]); // HW3: Without updating cur_VM, modelview would just be camera's view matrix.
+            //surfaceShader->material = (cur->models[i])->material;
+            depthShader->modelview = cur_VM * (cur->modeltransforms[i]); // HW3: Without updating cur_VM, modelview would just be camera's view matrix.
             // The draw command
-            surfaceShader->setUniforms();
-            //depthShader->setUniforms();
+            //surfaceShader->setUniforms();
+            depthShader->setUniforms();
             (cur->models[i])->geometry->draw();
         }
 

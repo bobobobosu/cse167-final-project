@@ -10,7 +10,7 @@ Light is a class for a camera object.
 struct Light {
     glm::vec4 position = glm::vec4(0.0f, 1.0f, 0.0f, 0.0f);
     glm::vec4 color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-    //std::vector<std::vector <GLfloat>> depthMap;
+    GLuint depthMap;
 };
 
 #endif 
