@@ -2,7 +2,9 @@
 
 in vec4 position; // raw position in the model coord
 
+// TODO set up light transformation to get this properly
 uniform mat4 modelview; // from model coord to light coord
+// TODO
 uniform mat4 view;      // from world coord to light coord
 uniform vec4 light_position; // position of light
 uniform bool enableshadows;
@@ -10,6 +12,9 @@ uniform bool enableshadows;
 // Output the frag color
 out vec4 depth;
 
+// TODO: when light space transformation is complete, make it so that the model
+//       is converted to the lightspace and then get it's position; that would
+//       be the depth.
 void main (void) {
     if (!enableshadows){
         // Default normal coloring (you don't need to modify anything here)
@@ -19,6 +24,7 @@ void main (void) {
         // Convert everything into a global position
         // Global position
         vec4 globalPosition = inverse(view) * (modelview * position);
+
         // Global normal
         mat3 view3d = transpose(inverse(mat3(view[0].xyz, view[1].xyz, view[2].xyz)));
         // Global eye position

@@ -35,7 +35,7 @@ public:
 class Scene {
 public:
     Camera* camera;
-    //SurfaceShader* surfaceShader;
+    SurfaceShader* surfaceShader;
     DepthShader* depthShader;
     // The following are containers of objects serving as the object palettes.
     // The containers store pointers so that they can also store derived class objects.
@@ -54,6 +54,7 @@ public:
     
     void init( void );
     void drawShadowTexture( void );
+    void computeLightViewAndProj( void );
     void draw( void );
     
     // destructor

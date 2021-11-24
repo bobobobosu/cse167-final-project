@@ -12,49 +12,118 @@ using namespace glm;
 
 const GLuint SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
 void Scene::drawShadowTexture(void) {
+
     GLuint depthMapFBO;
     GLuint depthMap;
-    // Generate a frame buffer objet.
-    glGenFramebuffers(1, &depthMapFBO);
-    glGenTextures(1, &depthMap);
-    glBindTexture(GL_TEXTURE_2D, depthMap);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SHADOW_WIDTH,
-        SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
 
-    // Create a 2D texture for the depth map.
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        // Attach depthMap to depthMapFBO’s depth buffer
-    glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
-    // ramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
-    glDrawBuffer(GL_NONE); // Omitting color data
-    glReadBuffer(GL_NONE); // Omitting color data
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    //// Generate a frame buffer objet.
+    //glGenFramebuffers(1, &depthMapFBO);
+
+    //// Create a 2D texture for the depth map.
+    //glGenTextures(1, &depthMap);
+    //glBindTexture(GL_TEXTURE_2D, depthMap);
+    //glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SHADOW_WIDTH,
+    //    SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+    //// Attach depthMap to depthMapFBO’s depth buffer
+    //glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+    //glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
+    //glDrawBuffer(GL_NONE); // Omitting color data
+    //glReadBuffer(GL_NONE); // Omitting color data
+    //glClear(GL_DEPTH_BUFFER_BIT);
+    //glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    // Render Scene
+    computeLightViewAndProj();
+
+    std::stack < Node* > dfs_stack;
+    std::stack < mat4 >  matrix_stack;
+
+    Node* cur = node["world"];
+    mat4 cur_VM = depthShader->view;
+
+    dfs_stack.push(cur);
+    matrix_stack.push(cur_VM);
+    while (!dfs_stack.empty()) {
+
+        // top-pop the stacks
+        cur = dfs_stack.top();
+        dfs_stack.pop();
+        cur_VM = matrix_stack.top();
+        matrix_stack.pop();
+
+        // draw all the models at the current node
+        for (unsigned int i = 0; i < cur->models.size(); i++) {
+
+            depthShader->modelview = cur_VM * (cur->modeltransforms[i]);
+
+            // The draw command
+            depthShader->setUniforms();
+            (cur->models[i])->geometry->draw();
+        }
+
+        // Continue the DFS: put all the child nodes of the current node in the stack
+        for (unsigned int i = 0; i < cur->childnodes.size(); i++) {
+            dfs_stack.push(cur->childnodes[i]);
+            matrix_stack.push(cur_VM * cur->childtransforms[i]);
+        }
+    } // End of DFS while loop.
+}
+
+//TODO: Compute light view & projection matrix
+void Scene::computeLightViewAndProj() {
+
+    for (std::pair<std::string, Light*> entry : light) {
+        depthShader->light_position = (entry.second)->position;
+    }
+
+    // Calculate View
+    glm::mat4 view = glm::mat4(1.0f);
+    glm::vec3 lightToOrigin = glm::vec3(depthShader->light_position);
+    glm::mat4 L;
+    glm::vec3 lightZ = glm::normalize(lightToOrigin);
+    glm::vec3 lightY = glm::normalize(vec3(0.0f, 1.0f, 0.0f) - glm::dot(lightZ, vec3(0.0f, 1.0f, 0.0f)) * lightZ);
+    glm::vec3 lightX = glm::cross(lightY, lightZ);
+    L[0] = glm::vec4(lightX, 0.0f);
+    L[1] = glm::vec4(lightY, 0.0f);
+    L[2] = glm::vec4(lightZ, 0.0f);
+    L[3] = glm::vec4(glm::vec3(depthShader->light_position), 1.0f);
+    view = glm::inverse(L);
+    depthShader->view = view;
+
+    // Calculate Projection
+    float left, right, top, bottom, far, near;
+    left   = -10.0f;
+    right  =  10.0f;
+    top    = -10.0f;
+    bottom =  10.0f;
+    far     = 10.0f;
+    near    = 00.0f;
+    glm::mat4 proj = glm::mat4(2/(right - left), 0.0f,               0.0f,              -(right + left)/(right - left),
+                               0.0f,             2 / (top - bottom), 0.0f,              -(top + bottom) / (top - bottom),
+                               0.0f,             0.0f,               -2 / (far - near), -(far + near) / (far - near),
+                               0.0f,             0.0f,               0.0f,              1.0f);
+
+    depthShader->projection = proj;
 }
 
 void Scene::draw(void) {
     // Pre-draw sequence: assign uniforms that are the same for all Geometry::draw call.  These uniforms include the camera view, proj, and the lights.  These uniform do not include modelview and material parameters.
     camera->computeMatrices();
-    //surfaceShader->view = camera->view;
-    //surfaceShader->projection = camera->proj;
-    //surfaceShader->nlights = light.size();
-    //surfaceShader->lightpositions.resize(surfaceShader->nlights);
-    //surfaceShader->lightcolors.resize(surfaceShader->nlights);
-    //int count = 0;
-    //for (std::pair<std::string, Light*> entry : light) {
-    //    surfaceShader->lightpositions[count] = (entry.second)->position;
-    //    surfaceShader->lightcolors[count] = (entry.second)->color;
-    //    count++;
-    //}
-
-    depthShader->setUniforms();
-    this->drawShadowTexture();    
-    depthShader->view = camera->view;
-    depthShader->projection = camera->proj;
+    surfaceShader->view = camera->view;
+    surfaceShader->projection = camera->proj;
+    surfaceShader->nlights = light.size();
+    surfaceShader->lightpositions.resize(surfaceShader->nlights);
+    surfaceShader->lightcolors.resize(surfaceShader->nlights);
+    int count = 0;
     for (std::pair<std::string, Light*> entry : light) {
-        depthShader->light_position = (entry.second)->position;
+        surfaceShader->lightpositions[count] = (entry.second)->position;
+        surfaceShader->lightcolors[count] = (entry.second)->color;
+        count++;
     }
 
     // Define stacks for depth-first search (DFS)
@@ -77,18 +146,15 @@ void Scene::draw(void) {
         // (HW3 hint: you should do something here)
         cur_VM = matrix_stack.top();  matrix_stack.pop();
 
-
         // draw all the models at the current node
         for (unsigned int i = 0; i < cur->models.size(); i++) {
             // Prepare to draw the geometry. Assign the modelview and the material.
 
             // (HW3 hint: you should do something here)
-            //surfaceShader->modelview = cur_VM * (cur->modeltransforms[i]); // HW3: Without updating cur_VM, modelview would just be camera's view matrix.
-            //surfaceShader->material = (cur->models[i])->material;
-            depthShader->modelview = cur_VM * (cur->modeltransforms[i]); // HW3: Without updating cur_VM, modelview would just be camera's view matrix.
+            surfaceShader->modelview = cur_VM * (cur->modeltransforms[i]); // HW3: Without updating cur_VM, modelview would just be camera's view matrix.
+            surfaceShader->material = (cur->models[i])->material;
             // The draw command
-            //surfaceShader->setUniforms();
-            depthShader->setUniforms();
+            surfaceShader->setUniforms();
             (cur->models[i])->geometry->draw();
         }
 
@@ -100,8 +166,6 @@ void Scene::draw(void) {
         }
 
     } // End of DFS while loop.
-    // HW3: Your code will only be above this line.
-
 }
 
 

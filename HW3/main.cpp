@@ -52,10 +52,14 @@ void initialize(void){
 }
 
 void display(void){
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+    //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+    //glUseProgram(scene.surfaceShader->program);
+    //scene.draw();
     
-    scene.draw();
-    
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glUseProgram(scene.depthShader->program);
+    scene.drawShadowTexture();
+
     glutSwapBuffers();
     glFlush();
 }
@@ -92,7 +96,7 @@ void keyboard(unsigned char key, int x, int y){
             glutPostRedisplay();
             break;
         case 'l':
-            //scene.surfaceShader -> enablelighting = !(scene.surfaceShader -> enablelighting);
+            scene.surfaceShader -> enablelighting = !(scene.surfaceShader -> enablelighting);
             scene.depthShader->enableshadows = !(scene.depthShader->enableshadows);
             glutPostRedisplay();
             break;
@@ -105,6 +109,7 @@ void keyboard(unsigned char key, int x, int y){
             break;
     }
 }
+
 void specialKey(int key, int x, int y){
     switch (key) {
         case GLUT_KEY_UP: // up
