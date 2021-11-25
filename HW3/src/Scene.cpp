@@ -11,32 +11,33 @@ Scene.cpp contains the implementation of the draw command
 using namespace glm;
 
 const GLuint SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
+
+
+
 void Scene::drawShadowTexture(void) {
+    // Generate a frame buffer objet.
+    glGenFramebuffers(1, &depthMapFBO);
 
-    GLuint depthMapFBO;
-    GLuint depthMap;
+    // Create a 2D texture for the depth map.
+    glGenTextures(1, &depthMap);
+    glBindTexture(GL_TEXTURE_2D, depthMap);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SHADOW_WIDTH,
+        SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-    //// Generate a frame buffer objet.
-    //glGenFramebuffers(1, &depthMapFBO);
-
-    //// Create a 2D texture for the depth map.
-    //glGenTextures(1, &depthMap);
-    //glBindTexture(GL_TEXTURE_2D, depthMap);
-    //glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SHADOW_WIDTH,
-    //    SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
-    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-    //// Attach depthMap to depthMapFBO’s depth buffer
-    //glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
-    //glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
-    //glDrawBuffer(GL_NONE); // Omitting color data
-    //glReadBuffer(GL_NONE); // Omitting color data
+    // Attach depthMap to depthMapFBO’s depth buffer
+    glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
+    glDrawBuffer(GL_NONE); // Omitting color data
+    glReadBuffer(GL_NONE); // Omitting color data
     //glClear(GL_DEPTH_BUFFER_BIT);
     //glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
+    glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+    glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
     // Render Scene
     computeLightViewAndProj();
 
@@ -72,43 +73,47 @@ void Scene::drawShadowTexture(void) {
             matrix_stack.push(cur_VM * cur->childtransforms[i]);
         }
     } // End of DFS while loop.
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-//TODO: Compute light view & projection matrix
+// Computes light view & projection matrix
 void Scene::computeLightViewAndProj() {
 
+    glm::vec4 light_position;
+
     for (std::pair<std::string, Light*> entry : light) {
-        depthShader->light_position = (entry.second)->position;
+        light_position = (entry.second)->position;
     }
 
     // Calculate View
     glm::mat4 view = glm::mat4(1.0f);
-    glm::vec3 lightToOrigin = glm::vec3(depthShader->light_position);
     glm::mat4 L;
-    glm::vec3 lightZ = glm::normalize(lightToOrigin);
+    glm::vec3 lightZ = glm::normalize(glm::vec3(light_position));
     glm::vec3 lightY = glm::normalize(vec3(0.0f, 1.0f, 0.0f) - glm::dot(lightZ, vec3(0.0f, 1.0f, 0.0f)) * lightZ);
     glm::vec3 lightX = glm::cross(lightY, lightZ);
     L[0] = glm::vec4(lightX, 0.0f);
     L[1] = glm::vec4(lightY, 0.0f);
     L[2] = glm::vec4(lightZ, 0.0f);
-    L[3] = glm::vec4(glm::vec3(depthShader->light_position), 1.0f);
+    L[3] = glm::vec4(glm::vec3(light_position), 1.0f);
     view = glm::inverse(L);
     depthShader->view = view;
 
+
+
     // Calculate Projection
     float left, right, top, bottom, far, near;
-    left   = -10.0f;
-    right  =  10.0f;
-    top    = -10.0f;
-    bottom =  10.0f;
+    left   = -5.0f;
+    right  =  5.0f;
+    top    =  5.0f;
+    bottom = -5.0f;
     far     = 10.0f;
-    near    = 00.0f;
+    near    = 0.0f;
     glm::mat4 proj = glm::mat4(2/(right - left), 0.0f,               0.0f,              -(right + left)/(right - left),
                                0.0f,             2 / (top - bottom), 0.0f,              -(top + bottom) / (top - bottom),
                                0.0f,             0.0f,               -2 / (far - near), -(far + near) / (far - near),
                                0.0f,             0.0f,               0.0f,              1.0f);
 
-    depthShader->projection = proj;
+    depthShader->projection = glm::transpose(proj);
 }
 
 void Scene::draw(void) {
@@ -129,7 +134,7 @@ void Scene::draw(void) {
     // Define stacks for depth-first search (DFS)
     std::stack < Node* > dfs_stack;
     std::stack < mat4 >  matrix_stack; // HW3: You will update this matrix_stack during the depth-first search while loop.
-
+     
     // Initialize the current state variable for DFS
     Node* cur = node["world"]; // root of the tree
     mat4 cur_VM = camera->view; // HW3: You will update this current modelview during the depth first search.  Initially, we are at the "world" node, whose modelview matrix is just camera's view matrix.

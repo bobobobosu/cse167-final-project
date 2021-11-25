@@ -37,6 +37,7 @@ public:
     Camera* camera;
     SurfaceShader* surfaceShader;
     DepthShader* depthShader;
+    GLuint depthMap, depthMapFBO;
     // The following are containers of objects serving as the object palettes.
     // The containers store pointers so that they can also store derived class objects.
     std::map< std::string, Geometry* > geometry;
