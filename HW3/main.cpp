@@ -54,10 +54,10 @@ void initialize(void){
 void display(void){
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    //glUseProgram(scene.depthShader->program);
+    glUseProgram(scene.depthShader->program);
     scene.drawShadowTexture();
-    glUseProgram(scene.surfaceShader->program);
-    scene.draw();
+    //glUseProgram(scene.surfaceShader->program);
+    //scene.draw();
 
     glutSwapBuffers();
     glFlush();

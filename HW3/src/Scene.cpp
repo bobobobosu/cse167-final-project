@@ -34,10 +34,10 @@ void Scene::drawShadowTexture(void) {
     glDrawBuffer(GL_NONE); // Omitting color data
     glReadBuffer(GL_NONE); // Omitting color data
     //glClear(GL_DEPTH_BUFFER_BIT);
-    //glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-    glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
-    glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+    //glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+    //glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
     // Render Scene
     computeLightViewAndProj();
 
@@ -73,7 +73,7 @@ void Scene::drawShadowTexture(void) {
             matrix_stack.push(cur_VM * cur->childtransforms[i]);
         }
     } // End of DFS while loop.
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    //glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 // Computes light view & projection matrix

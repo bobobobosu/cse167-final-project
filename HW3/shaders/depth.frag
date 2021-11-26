@@ -5,7 +5,7 @@ in vec4 position; // raw position in the model coord
 uniform mat4 modelview; // from model coord to light coord
 uniform mat4 view;      // from world coord to light coord
 
-// Output the frag color
+// Output depth
 out vec4 depth;
 
 // TODO: when light space transformation is complete, make it so that the model
