@@ -14,7 +14,7 @@ out vec4 depth;
 void main (void) {
 	// Convert position to global position
 	vec4 lightBasedPos = modelview * position;
-	float dist = length(vec3(lightBasedPos)) * 0.1f;
+	float dist = length(vec3(lightBasedPos));
 
 	depth = vec4(vec3(dist), 0.0f);
 }

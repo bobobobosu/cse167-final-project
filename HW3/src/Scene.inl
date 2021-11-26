@@ -138,7 +138,7 @@ void Scene::init(void){
     
     // Initialize shaders
     surfaceShader = new SurfaceShader;
-    surfaceShader -> read_source( "shaders/projective.vert", "shaders/lighting.frag" );
+    surfaceShader -> read_source( "shaders/lightspace.vert", "shaders/lighting.frag" );
     surfaceShader -> compile();
     surfaceShader -> initUniforms();
 

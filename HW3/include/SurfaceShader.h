@@ -16,6 +16,7 @@ struct SurfaceShader : Shader {
     glm::mat4 view = glm::mat4(1.0f); GLuint view_loc;
     glm::mat4 modelview = glm::mat4(1.0f); GLuint modelview_loc;
     glm::mat4 projection = glm::mat4(1.0f); GLuint projection_loc;
+
     // material parameters
     Material* material;
     GLuint ambient_loc;
@@ -29,11 +30,15 @@ struct SurfaceShader : Shader {
     GLint nlights = 0;               // number of lights used
     std::vector<glm::vec4> lightpositions; // positions of lights
     std::vector<glm::vec4> lightcolors; // colors of lights
+    // When adding more than 1 light, be sure to put maps in vectors.
+    glm::mat4 lightView;
+    glm::mat4 lightProj;
     GLuint enablelighting_loc;
     GLuint nlights_loc;
     GLuint lightpositions_loc;
     GLuint lightcolors_loc;
-    
+    GLuint lightview_loc;
+    GLuint lightproj_loc;
     
     void initUniforms(){
         view_loc  = glGetUniformLocation( program, "view" );
@@ -48,7 +53,8 @@ struct SurfaceShader : Shader {
         nlights_loc = glGetUniformLocation( program, "nlights" );
         lightpositions_loc = glGetUniformLocation( program, "lightpositions" );
         lightcolors_loc = glGetUniformLocation( program, "lightcolors" );
-        
+        lightview_loc = glGetUniformLocation(program, "lightView");
+        lightproj_loc = glGetUniformLocation(program, "lightProj");
     }
     void setUniforms(){
         glUniformMatrix4fv(view_loc, 1, GL_FALSE, &view[0][0]);
@@ -63,6 +69,8 @@ struct SurfaceShader : Shader {
         glUniform1i( nlights_loc, nlights );
         glUniform4fv( lightpositions_loc, GLsizei(nlights), &lightpositions[0][0] );
         glUniform4fv( lightcolors_loc, GLsizei(nlights), &lightcolors[0][0] );
+        glUniformMatrix4fv(lightview_loc, 1, GL_FALSE, &lightView[0][0]);
+        glUniformMatrix4fv(lightproj_loc, 1, GL_FALSE, &lightProj[0][0]);
     }
 };
 

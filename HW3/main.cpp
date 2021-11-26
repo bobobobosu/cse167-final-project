@@ -46,18 +46,23 @@ void initialize(void){
     
     // Initialize scene
     scene.init();
+    scene.createTexture();
 
     // Enable depth test
     glEnable(GL_DEPTH_TEST);
+
+    //glClearColor(0, 0, 0, 0);
 }
 
 void display(void){
-
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glUseProgram(scene.depthShader->program);
     scene.drawShadowTexture();
-    //glUseProgram(scene.surfaceShader->program);
-    //scene.draw();
+
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glViewport(0, 0, width, height);
+    glUseProgram(scene.surfaceShader->program);
+    scene.draw();
 
     glutSwapBuffers();
     glFlush();

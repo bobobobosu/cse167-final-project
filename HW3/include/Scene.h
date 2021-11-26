@@ -37,7 +37,6 @@ public:
     Camera* camera;
     SurfaceShader* surfaceShader;
     DepthShader* depthShader;
-    GLuint depthMap, depthMapFBO;
     // The following are containers of objects serving as the object palettes.
     // The containers store pointers so that they can also store derived class objects.
     std::map< std::string, Geometry* > geometry;
@@ -48,14 +47,20 @@ public:
     // The container of nodes will be the scene graph after we connect the nodes by setting the child_nodes.
     std::map< std::string, Node* > node;
     
+    GLuint depthMap;
+    GLuint depthMapBuffer;
+    glm::mat4 view;
+    glm::mat4 proj;
+
     Scene(){
         // the default scene graph already has one node named "world."
         node["world"] = new Node;
     }
     
     void init( void );
+    void createTexture(void);
     void drawShadowTexture( void );
-    void computeLightViewAndProj( void );
+    void computeLightViewAndProj( Light* light );
     void draw( void );
     
     // destructor

@@ -2,7 +2,9 @@
 
 in vec4 position; // raw position in the model coord
 in vec3 normal;   // raw normal in the model coord
+in vec4 fragInLightSpace; // position of vertex in the lightspace
 
+// View parameters
 uniform mat4 modelview; // from model coord to eye coord
 uniform mat4 view;      // from world coord to eye coord
 
@@ -18,7 +20,9 @@ const int maximal_allowed_lights = 10;
 uniform bool enablelighting;
 uniform int nlights;
 uniform vec4 lightpositions[ maximal_allowed_lights ];
+uniform mat4 lightView;
 uniform vec4 lightcolors[ maximal_allowed_lights ];
+uniform sampler2D shadowMap;
 
 // Output the frag color
 out vec4 fragColor;
@@ -30,7 +34,6 @@ void main (void) {
         vec3 N = normalize(normal);
         fragColor = vec4(0.5f*N + 0.5f , 1.0f);
     } else {
-
         // Convert everything into a global position
         // Global position
         vec4 globalPosition = inverse(view) * (modelview * position);
@@ -47,63 +50,32 @@ void main (void) {
         // HW3: You will compute the lighting here.
         vec4 color = emision;
 
-        for(int j = 0; j < nlights; j++) {
+        // Add ambient
+        color += ambient;
 
-            // Add ambient
-            vec4 iterationColor = ambient;
+        for(int j = 0; j < nlights; j++) {
 
             // Add diffuse
             vec3 l_j = normalize(globalPosition.w * lightpositions[j].xyz - lightpositions[j].w * globalPosition.xyz);
-            iterationColor += diffuse * max(dot(globalNormal, l_j), 0);
+            vec4 iterationColor = diffuse * max(dot(globalNormal, l_j), 0);
 
             // Add specular
             vec3 h_j = normalize(globalV + l_j);
             iterationColor += specular * pow(max(dot(globalNormal, h_j), 0), shininess);
 
-            // Multiply Light Color
-            iterationColor = iterationColor * lightcolors[j];
-            color += iterationColor;
-        }
+            vec3 lightDir = vec3(lightView[0].xyz);
 
-        fragColor = vec4(color);
-    }
+            vec3 textureCoordinates = fragInLightSpace.xyz * 0.5 + 0.5;
 
-/*
-    // View in the model coordinate
-    vec4 modelCoorView = inverse(modelview)[3];
+            float depthAtTexture = texture(shadowMap, textureCoordinates.xy).z;
 
-    // Unit vector made using 2 model coordinate positions pointing towards the viewer
-    vec3 v = normalize(modelCoorView.xyz - position.xyz);
+            float depthAtFragment = textureCoordinates.z;
 
-    if (!enablelighting){
-        // Default normal coloring (you don't need to modify anything here)
-        vec3 N = normalize(normal);
-        fragColor = vec4(0.5f*N + 0.5f , 1.0f);
-    } else {
-        // HW3: You will compute the lighting here.
-        vec4 color = emision;
+            float bias = max(0.01 * (1.0 - dot(normal, lightDir)), 0.005);
 
-        // normal 
-        vec3 modelCoorN = normalize(normal);
-        for(int j = 0; j < nlights; j++) {
+            float shadow = depthAtFragment - bias > depthAtTexture ? 1.f : 0.f;
 
-            // Add ambient
-            vec4 iterationColor = ambient;
-
-            // Add diffuse
-            // Convert light position coordinates from global to eye to model
-            vec4 modelCoorLightPos = inverse(modelview) * (view * lightpositions[j]);
-            
-            // Vector calculated using position (model coordinate) and model coordinate based light position.
-            vec3 l_j = normalize(position.w * modelCoorLightPos.xyz - modelCoorLightPos.w * position.xyz);
-
-            // Dot product of model
-            iterationColor += diffuse * max(dot(modelCoorN, l_j), 0);
-
-            // Add specular
-            // Vector calculated with v and l_j
-            vec3 h_j = normalize(v + l_j);
-            iterationColor += specular * max(pow(dot(modelCoorN, h_j), shininess), 0);
+            iterationColor *= 1 - shadow;
 
             // Multiply Light Color
             iterationColor = iterationColor * lightcolors[j];
@@ -112,5 +84,4 @@ void main (void) {
 
         fragColor = vec4(color);
     }
-*/
 }
