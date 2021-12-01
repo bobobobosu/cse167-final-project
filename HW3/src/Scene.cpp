@@ -37,7 +37,7 @@ void Scene::createTexture(void) {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void Scene::drawShadowTexture(void) {
+void Scene::drawShadowTexture(DepthShader* depthShader) {
 
     for (std::pair<std::string, Light*> entry : light) {
 
@@ -45,7 +45,7 @@ void Scene::drawShadowTexture(void) {
         glBindFramebuffer(GL_FRAMEBUFFER, depthMapBuffer);
 
         // Render Scene
-        computeLightViewAndProj(entry.second);
+        computeLightViewAndProj(entry.second, depthShader);
 
         std::stack < Node* > dfs_stack;
         std::stack < mat4 >  matrix_stack;
@@ -84,7 +84,7 @@ void Scene::drawShadowTexture(void) {
 }
 
 // Computes light view & projection matrix
-void Scene::computeLightViewAndProj(Light* light) {
+void Scene::computeLightViewAndProj(Light* light, DepthShader* depthShader) {
 
     // Calculate View
     view = glm::mat4(1.0f);
@@ -117,7 +117,7 @@ void Scene::computeLightViewAndProj(Light* light) {
     //light->proj = proj;
 }
 
-void Scene::draw(void) {
+void Scene::draw(SurfaceShader* surfaceShader) {
     // Pre-draw sequence: assign uniforms that are the same for all Geometry::draw call.  These uniforms include the camera view, proj, and the lights.  These uniform do not include modelview and material parameters.
     camera->computeMatrices();
     surfaceShader->view = camera->view;

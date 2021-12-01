@@ -17,9 +17,13 @@
 
 static const int width = 800;
 static const int height = 600;
+static const int swidth = 1024;
+static const int sheight = 1024;
 static const char* title = "Scene viewer";
 static const glm::vec4 background(0.1f, 0.2f, 0.3f, 1.0f);
 static Scene scene;
+static DepthShader* depthShader;
+static SurfaceShader* surfaceShader;
 
 #include "hw3AutoScreenshots.h"
 
@@ -40,6 +44,19 @@ void printHelp(){
 }
 
 void initialize(void){
+
+    // Create Surface Shader
+    surfaceShader = new SurfaceShader;
+    surfaceShader->read_source("shaders/lightspace.vert", "shaders/lighting.frag");
+    surfaceShader->compile();
+    surfaceShader->initUniforms();
+
+    //Create Depth Shader
+    depthShader = new DepthShader;
+    depthShader->read_source("shaders/projective.vert", "shaders/depth.frag");
+    depthShader->compile();
+    depthShader->initUniforms();
+
     printHelp();
     glClearColor(background[0], background[1], background[2], background[3]); // background color
     glViewport(0,0,width,height);
@@ -54,14 +71,12 @@ void initialize(void){
 
 void display(void){
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glUseProgram(scene.depthShader->program);
-    glCullFace(GL_FRONT);
-    scene.drawShadowTexture();
-    glCullFace(GL_BACK);
+    glUseProgram(depthShader->program);
+    scene.drawShadowTexture(depthShader);
 
     glViewport(0, 0, width, height);
-    glUseProgram(scene.surfaceShader->program);
-    scene.draw();
+    glUseProgram(surfaceShader->program);
+    scene.draw(surfaceShader);
 
     glutSwapBuffers();
     glFlush();
@@ -99,7 +114,7 @@ void keyboard(unsigned char key, int x, int y){
             glutPostRedisplay();
             break;
         case 'l':
-            scene.surfaceShader -> enablelighting = !(scene.surfaceShader -> enablelighting);
+            surfaceShader -> enablelighting = !(surfaceShader -> enablelighting);
             glutPostRedisplay();
             break;
         case ' ':

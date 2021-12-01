@@ -35,8 +35,6 @@ public:
 class Scene {
 public:
     Camera* camera;
-    SurfaceShader* surfaceShader;
-    DepthShader* depthShader;
     // The following are containers of objects serving as the object palettes.
     // The containers store pointers so that they can also store derived class objects.
     std::map< std::string, Geometry* > geometry;
@@ -59,9 +57,9 @@ public:
     
     void init( void );
     void createTexture(void);
-    void drawShadowTexture( void );
-    void computeLightViewAndProj( Light* light );
-    void draw( void );
+    void drawShadowTexture( DepthShader* depthShader );
+    void computeLightViewAndProj( Light* light, DepthShader* depthShader );
+    void draw( SurfaceShader* surfaceShader );
     
     // destructor
     ~Scene(){
@@ -88,8 +86,6 @@ public:
             delete entry.second;
         }
         delete camera;
-        //delete surfaceShader;
-        delete depthShader;
     }
 };
 

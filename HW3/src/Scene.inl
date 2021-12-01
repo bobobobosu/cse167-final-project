@@ -135,16 +135,4 @@ void Scene::init(void){
     camera -> eye_default = vec3( 0.0f, 1.0f, 5.0f );
     camera -> up_default = vec3( 0.0f, 1.0f, 0.0f );
     camera -> reset();
-    
-    // Initialize shaders
-    surfaceShader = new SurfaceShader;
-    surfaceShader -> read_source( "shaders/lightspace.vert", "shaders/lighting.frag" );
-    surfaceShader -> compile();
-    surfaceShader -> initUniforms();
-
-    //Create Depth Shader
-    depthShader = new DepthShader;
-    depthShader->read_source("shaders/projective.vert", "shaders/depth.frag");
-    depthShader->compile();
-    depthShader->initUniforms();
 }
