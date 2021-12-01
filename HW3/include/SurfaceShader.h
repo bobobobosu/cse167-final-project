@@ -26,19 +26,18 @@ struct SurfaceShader : Shader {
     GLuint shininess_loc;
     
     // lights
-    GLboolean enablelighting = GL_FALSE; // are we lighting at all (global).
-    GLint nlights = 0;               // number of lights used
+    GLboolean enablelighting = GL_FALSE;   // are we lighting at all (global).
+    GLint nlights = 0;                     // number of lights used
     std::vector<glm::vec4> lightpositions; // positions of lights
-    std::vector<glm::vec4> lightcolors; // colors of lights
-    // When adding more than 1 light, be sure to put maps in vectors.
-    glm::mat4 lightView;
-    glm::mat4 lightProj;
+    std::vector<glm::vec4> lightcolors;    // colors of lights
+    std::vector<glm::mat4> lightviews;
+    std::vector<glm::mat4> lightprojs;
     GLuint enablelighting_loc;
     GLuint nlights_loc;
     GLuint lightpositions_loc;
     GLuint lightcolors_loc;
-    GLuint lightview_loc;
-    GLuint lightproj_loc;
+    GLuint lightviews_loc;
+    GLuint lightprojs_loc;
     
     void initUniforms(){
         view_loc  = glGetUniformLocation( program, "view" );
@@ -53,8 +52,8 @@ struct SurfaceShader : Shader {
         nlights_loc = glGetUniformLocation( program, "nlights" );
         lightpositions_loc = glGetUniformLocation( program, "lightpositions" );
         lightcolors_loc = glGetUniformLocation( program, "lightcolors" );
-        lightview_loc = glGetUniformLocation(program, "lightView");
-        lightproj_loc = glGetUniformLocation(program, "lightProj");
+        lightviews_loc = glGetUniformLocation(program, "lightviews");
+        lightprojs_loc = glGetUniformLocation(program, "lightprojs");
     }
     void setUniforms(){
         glUniformMatrix4fv(view_loc, 1, GL_FALSE, &view[0][0]);
@@ -69,8 +68,8 @@ struct SurfaceShader : Shader {
         glUniform1i( nlights_loc, nlights );
         glUniform4fv( lightpositions_loc, GLsizei(nlights), &lightpositions[0][0] );
         glUniform4fv( lightcolors_loc, GLsizei(nlights), &lightcolors[0][0] );
-        glUniformMatrix4fv(lightview_loc, 1, GL_FALSE, &lightView[0][0]);
-        glUniformMatrix4fv(lightproj_loc, 1, GL_FALSE, &lightProj[0][0]);
+        glUniformMatrix4fv(lightviews_loc, GLsizei(nlights), GL_FALSE, &lightviews[0][0][0]);
+        glUniformMatrix4fv(lightprojs_loc, GLsizei(nlights), GL_FALSE, &lightprojs[0][0][0]);
     }
 };
 

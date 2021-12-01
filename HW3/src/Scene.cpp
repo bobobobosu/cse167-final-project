@@ -120,14 +120,16 @@ void Scene::draw(SurfaceShader* surfaceShader) {
     surfaceShader->projection = camera->proj;
     surfaceShader->nlights = light.size();
     surfaceShader->lightpositions.resize(surfaceShader->nlights);
-    surfaceShader->lightpositions.resize(surfaceShader->nlights);
     surfaceShader->lightcolors.resize(surfaceShader->nlights);
+    surfaceShader->lightviews.resize(surfaceShader->nlights);
+    surfaceShader->lightprojs.resize(surfaceShader->nlights);
     int count = 0;
     for (std::pair<std::string, Light*> entry : light) {
         surfaceShader->lightpositions[count] = (entry.second)->position;
         surfaceShader->lightcolors[count] = (entry.second)->color;
-        surfaceShader->lightView = (entry.second)->view;
-        surfaceShader->lightProj = (entry.second)->proj;
+        surfaceShader->lightviews[count] = (entry.second)->view;
+        surfaceShader->lightprojs[count] = (entry.second)->proj;
+        glActiveTexture(GL_TEXTURE0 + count);
         glBindTexture(GL_TEXTURE_2D, (entry.second)->depthMap);
         count++;
     }

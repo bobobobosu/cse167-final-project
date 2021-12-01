@@ -1,8 +1,10 @@
 #version 330 core
 
+const int maximal_allowed_lights = 10;
+
 in vec4 position; // raw position in the model coord
 in vec3 normal;   // raw normal in the model coord
-in vec4 fragInLightSpace; // position of vertex in the lightspace
+in vec4 fragInLightSpace[maximal_allowed_lights]; // position of vertex in the lightspace
 
 // View parameters
 uniform mat4 modelview; // from model coord to eye coord
@@ -16,19 +18,17 @@ uniform vec4 emision;
 uniform float shininess;
 
 // Light source parameters
-const int maximal_allowed_lights = 10;
 uniform bool enablelighting;
 uniform int nlights;
 uniform vec4 lightpositions[ maximal_allowed_lights ];
-uniform mat4 lightView;
+uniform mat4 lightviews[maximal_allowed_lights];
 uniform vec4 lightcolors[ maximal_allowed_lights ];
-uniform sampler2D shadowMap;
-const float shadowBias = 0.01;
+uniform sampler2D depthMap[ maximal_allowed_lights ];
+const float shadowBias = 0.025;
 const float minimumBias = 0.005;
 
 // Output the frag color
 out vec4 fragColor;
-
 
 void main (void) {
     if (!enablelighting){
@@ -65,13 +65,12 @@ void main (void) {
             vec3 h_j = normalize(globalV + l_j);
             iterationColor += specular * pow(max(dot(globalNormal, h_j), 0), shininess);
 
-            vec3 textureCoordinates = fragInLightSpace.xyz * 0.5 + 0.5;
-            float depthAtTexture = texture(shadowMap, textureCoordinates.xy).z;
+            vec3 textureCoordinates = fragInLightSpace[j].xyz * 0.5 + 0.5;
+            float depthAtTexture = texture(depthMap[j], textureCoordinates.xy).z;
             float depthAtFragment = textureCoordinates.z;
-            float bias = max(shadowBias * (1.0 - dot(globalNormal, -normalize(lightView[0].xyz))), minimumBias);
+            float bias = max(shadowBias * (1.0 - dot(globalNormal, -normalize(lightviews[j][0].xyz))), minimumBias);
             float shadow = depthAtFragment - bias > depthAtTexture ? 1.f : 0.f;
             iterationColor *= 1 - shadow;
-
 
             // Multiply Light Color
             iterationColor = iterationColor * lightcolors[j];
