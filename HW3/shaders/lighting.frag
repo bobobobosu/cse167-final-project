@@ -23,6 +23,8 @@ uniform vec4 lightpositions[ maximal_allowed_lights ];
 uniform mat4 lightView;
 uniform vec4 lightcolors[ maximal_allowed_lights ];
 uniform sampler2D shadowMap;
+const float shadowBias = 0.01;
+const float minimumBias = 0.005;
 
 // Output the frag color
 out vec4 fragColor;
@@ -63,15 +65,13 @@ void main (void) {
             vec3 h_j = normalize(globalV + l_j);
             iterationColor += specular * pow(max(dot(globalNormal, h_j), 0), shininess);
 
-            vec3 lightDir = vec3(lightView[0].xyz);
-
             vec3 textureCoordinates = fragInLightSpace.xyz * 0.5 + 0.5;
 
             float depthAtTexture = texture(shadowMap, textureCoordinates.xy).z;
 
             float depthAtFragment = textureCoordinates.z;
-
-            float bias = max(0.01 * (1.0 - dot(normal, lightDir)), 0.005);
+            float bias = shadowBias * (1.0 - dot(normal, vec3(lightView[0].xyz)));
+            bias = (bias < minimumBias) ? minimumBias : bias;
 
             float shadow = depthAtFragment - bias > depthAtTexture ? 1.f : 0.f;
 
