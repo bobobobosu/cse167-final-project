@@ -63,7 +63,7 @@ void initialize(void){
     
     // Initialize scene
     scene.init();
-    scene.createTexture();
+    scene.createTexture(swidth, sheight);
 
     // Enable depth test
     glEnable(GL_DEPTH_TEST);
@@ -71,9 +71,11 @@ void initialize(void){
 
 void display(void){
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glViewport(0, 0, swidth, sheight);
     glUseProgram(depthShader->program);
     scene.drawShadowTexture(depthShader);
 
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glViewport(0, 0, width, height);
     glUseProgram(surfaceShader->program);
     scene.draw(surfaceShader);

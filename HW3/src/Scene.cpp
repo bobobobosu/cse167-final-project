@@ -10,9 +10,7 @@ Scene.cpp contains the implementation of the draw command
 
 using namespace glm;
 
-const GLuint SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
-
-void Scene::createTexture(void) {
+void Scene::createTexture(int width, int height) {
     // Generate a frame buffer objet.;
     glGenFramebuffers(1, &depthMapBuffer);
 
@@ -20,7 +18,7 @@ void Scene::createTexture(void) {
     glGenTextures(1, &depthMap);
     glBindTexture(GL_TEXTURE_2D, depthMap);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT,
-        SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT,
+        width, height, 0, GL_DEPTH_COMPONENT,
         GL_FLOAT, NULL);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -40,8 +38,6 @@ void Scene::createTexture(void) {
 void Scene::drawShadowTexture(DepthShader* depthShader) {
 
     for (std::pair<std::string, Light*> entry : light) {
-
-        glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
         glBindFramebuffer(GL_FRAMEBUFFER, depthMapBuffer);
 
         // Render Scene
@@ -87,7 +83,7 @@ void Scene::drawShadowTexture(DepthShader* depthShader) {
 void Scene::computeLightViewAndProj(Light* light, DepthShader* depthShader) {
 
     // Calculate View
-    view = glm::mat4(1.0f);
+    light->view = glm::mat4(1.0f);
     glm::mat4 L;
     glm::vec3 lightZ = glm::normalize(glm::vec3(light->position));
     glm::vec3 lightY = glm::normalize(vec3(0.0f, 1.0f, 0.0f) - glm::dot(lightZ, vec3(0.0f, 1.0f, 0.0f)) * lightZ); // Might need to change down the road
@@ -96,9 +92,8 @@ void Scene::computeLightViewAndProj(Light* light, DepthShader* depthShader) {
     L[1] = glm::vec4(lightY, 0.0f);
     L[2] = glm::vec4(lightZ, 0.0f);
     L[3] = glm::vec4(glm::vec3(light->position), 1.0f);
-    view = glm::inverse(L);
-    depthShader->view = view;
-    //light->view = view;
+    light->view = glm::inverse(L);
+    depthShader->view = light->view;
 
     // Calculate Projection
     float left, right, top, bottom, far, near;
@@ -108,13 +103,12 @@ void Scene::computeLightViewAndProj(Light* light, DepthShader* depthShader) {
     bottom = -10.0f;
     far     = 7.5f;
     near    = 1.0f;
-    proj = glm::mat4(2/(right - left), 0.0f,               0.0f,              -(right + left)/(right - left),
+    light->proj = glm::mat4(2/(right - left), 0.0f,               0.0f,              -(right + left)/(right - left),
                                0.0f,             2 / (top - bottom), 0.0f,              -(top + bottom) / (top - bottom),
                                0.0f,             0.0f,               -2 / (far - near), -(far + near) / (far - near),
                                0.0f,             0.0f,               0.0f,              1.0f);
-    proj = glm::transpose(proj);
-    depthShader->projection = proj;
-    //light->proj = proj;
+    light->proj = glm::transpose(light->proj);
+    depthShader->projection = light->proj;
 }
 
 void Scene::draw(SurfaceShader* surfaceShader) {
@@ -130,10 +124,10 @@ void Scene::draw(SurfaceShader* surfaceShader) {
     for (std::pair<std::string, Light*> entry : light) {
         surfaceShader->lightpositions[count] = (entry.second)->position;
         surfaceShader->lightcolors[count] = (entry.second)->color;
+        surfaceShader->lightView = (entry.second)->view;
+        surfaceShader->lightProj = (entry.second)->proj;
         count++;
     }
-    surfaceShader->lightView = view;
-    surfaceShader->lightProj = proj;
     glBindTexture(GL_TEXTURE_2D, depthMap);
     // Define stacks for depth-first search (DFS)
     std::stack < Node* > dfs_stack;

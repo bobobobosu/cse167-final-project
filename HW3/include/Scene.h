@@ -47,8 +47,6 @@ public:
     
     GLuint depthMap;
     GLuint depthMapBuffer;
-    glm::mat4 view;
-    glm::mat4 proj;
 
     Scene(){
         // the default scene graph already has one node named "world."
@@ -56,7 +54,7 @@ public:
     }
     
     void init( void );
-    void createTexture(void);
+    void createTexture( int width, int height );
     void drawShadowTexture( DepthShader* depthShader );
     void computeLightViewAndProj( Light* light, DepthShader* depthShader );
     void draw( SurfaceShader* surfaceShader );
