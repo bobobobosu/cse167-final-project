@@ -44,9 +44,6 @@ public:
     
     // The container of nodes will be the scene graph after we connect the nodes by setting the child_nodes.
     std::map< std::string, Node* > node;
-    
-    GLuint depthMap;
-    GLuint depthMapBuffer;
 
     Scene(){
         // the default scene graph already has one node named "world."

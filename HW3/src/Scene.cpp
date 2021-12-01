@@ -11,34 +11,36 @@ Scene.cpp contains the implementation of the draw command
 using namespace glm;
 
 void Scene::createTexture(int width, int height) {
-    // Generate a frame buffer objet.;
-    glGenFramebuffers(1, &depthMapBuffer);
+    for (std::pair<std::string, Light*> entry : light) {
+        // Generate a frame buffer objet.;
+        glGenFramebuffers(1, &((entry.second)->depthMapBuffer));
 
-    // Create a 2D texture for the depth map.
-    glGenTextures(1, &depthMap);
-    glBindTexture(GL_TEXTURE_2D, depthMap);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT,
-        width, height, 0, GL_DEPTH_COMPONENT,
-        GL_FLOAT, NULL);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        // Create a 2D texture for the depth map.
+        glGenTextures(1, &((entry.second)->depthMap));
+        glBindTexture(GL_TEXTURE_2D, (entry.second)->depthMap);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT,
+            width, height, 0, GL_DEPTH_COMPONENT,
+            GL_FLOAT, NULL);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-    // Attach depthMap to depthMapFBO’s depth buffer
-    glBindFramebuffer(GL_FRAMEBUFFER, depthMapBuffer);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
-        GL_TEXTURE_2D, depthMap, 0);
-    glDrawBuffer(GL_NONE); // Omitting color data
-    glReadBuffer(GL_NONE); // Omitting color data
-    glClear(GL_DEPTH_BUFFER_BIT);
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        // Attach depthMap to depthMapFBO’s depth buffer
+        glBindFramebuffer(GL_FRAMEBUFFER, (entry.second)->depthMapBuffer);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
+            GL_TEXTURE_2D, (entry.second)->depthMap, 0);
+        glDrawBuffer(GL_NONE); // Omitting color data
+        glReadBuffer(GL_NONE); // Omitting color data
+        glClear(GL_DEPTH_BUFFER_BIT);
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    }
 }
 
 void Scene::drawShadowTexture(DepthShader* depthShader) {
 
     for (std::pair<std::string, Light*> entry : light) {
-        glBindFramebuffer(GL_FRAMEBUFFER, depthMapBuffer);
+        glBindFramebuffer(GL_FRAMEBUFFER, (entry.second)->depthMapBuffer);
 
         // Render Scene
         computeLightViewAndProj(entry.second, depthShader);
@@ -126,9 +128,9 @@ void Scene::draw(SurfaceShader* surfaceShader) {
         surfaceShader->lightcolors[count] = (entry.second)->color;
         surfaceShader->lightView = (entry.second)->view;
         surfaceShader->lightProj = (entry.second)->proj;
+        glBindTexture(GL_TEXTURE_2D, (entry.second)->depthMap);
         count++;
     }
-    glBindTexture(GL_TEXTURE_2D, depthMap);
     // Define stacks for depth-first search (DFS)
     std::stack < Node* > dfs_stack;
     std::stack < mat4 >  matrix_stack; // HW3: You will update this matrix_stack during the depth-first search while loop.
