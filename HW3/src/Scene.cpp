@@ -10,7 +10,7 @@ Scene.cpp contains the implementation of the draw command
 
 using namespace glm;
 
-const GLuint SHADOW_WIDTH = 1024 * 2, SHADOW_HEIGHT = 1024 * 2;
+const GLuint SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
 
 void Scene::createTexture(void) {
     // Generate a frame buffer objet.;

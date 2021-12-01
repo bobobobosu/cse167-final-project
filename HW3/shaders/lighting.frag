@@ -66,16 +66,12 @@ void main (void) {
             iterationColor += specular * pow(max(dot(globalNormal, h_j), 0), shininess);
 
             vec3 textureCoordinates = fragInLightSpace.xyz * 0.5 + 0.5;
-
             float depthAtTexture = texture(shadowMap, textureCoordinates.xy).z;
-
             float depthAtFragment = textureCoordinates.z;
-            float bias = shadowBias * (1.0 - dot(normal, vec3(lightView[0].xyz)));
-            bias = (bias < minimumBias) ? minimumBias : bias;
-
+            float bias = max(shadowBias * (1.0 - dot(globalNormal, -normalize(lightView[0].xyz))), minimumBias);
             float shadow = depthAtFragment - bias > depthAtTexture ? 1.f : 0.f;
-
             iterationColor *= 1 - shadow;
+
 
             // Multiply Light Color
             iterationColor = iterationColor * lightcolors[j];
