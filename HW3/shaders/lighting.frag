@@ -24,7 +24,7 @@ uniform vec4 lightpositions[ maximal_allowed_lights ];
 uniform mat4 lightviews[maximal_allowed_lights];
 uniform vec4 lightcolors[ maximal_allowed_lights ];
 uniform sampler2D depthMap[ maximal_allowed_lights ];
-const float shadowBias = 0.025;
+const float shadowBias = 0.02;
 const float minimumBias = 0.005;
 
 // Output the frag color

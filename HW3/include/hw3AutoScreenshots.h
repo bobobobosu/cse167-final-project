@@ -7,11 +7,10 @@ void display(void);
 void saveScreenShot(const char* filename);
 void hw3AutoScreenshots(){
     scene.camera -> reset();
-    //scene.surfaceShader -> enablelighting = false;
     display();
     saveScreenShot("image-00.png");
     
-    keyboard('l',0,0);
+    //keyboard('l',0,0);
     display();
     saveScreenShot("image-01.png");
     
@@ -39,6 +38,5 @@ void hw3AutoScreenshots(){
     saveScreenShot("image-03.png");
     
     scene.camera -> reset();
-    //scene.surfaceShader -> enablelighting = false;
     display();
 }
