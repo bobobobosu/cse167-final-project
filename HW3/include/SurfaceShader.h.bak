@@ -16,6 +16,7 @@ struct SurfaceShader : Shader {
     glm::mat4 view = glm::mat4(1.0f); GLuint view_loc;
     glm::mat4 modelview = glm::mat4(1.0f); GLuint modelview_loc;
     glm::mat4 projection = glm::mat4(1.0f); GLuint projection_loc;
+
     // material parameters
     Material* material;
     GLuint ambient_loc;
@@ -25,10 +26,10 @@ struct SurfaceShader : Shader {
     GLuint shininess_loc;
     
     // lights
-    GLboolean enablelighting = GL_FALSE; // are we lighting at all (global).
-    GLint nlights = 0;               // number of lights used
+    GLboolean enablelighting = GL_FALSE;   // are we lighting at all (global).
+    GLint nlights = 0;                     // number of lights used
     std::vector<glm::vec4> lightpositions; // positions of lights
-    std::vector<glm::vec4> lightcolors; // colors of lights
+    std::vector<glm::vec4> lightcolors;    // colors of lights
     std::vector<glm::mat4> lightviews;
     std::vector<glm::mat4> lightprojs;
     GLuint enablelighting_loc;

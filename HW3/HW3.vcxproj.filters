@@ -51,7 +51,7 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Light.cpp">
+    <ClCompile Include="src\Light.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

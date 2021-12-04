@@ -29,7 +29,7 @@ void Shader::compile()  {
         shadererrors( fragmentshader ) ;
         throw 3 ;
     }
-    program = glCreateProgram() ;
+    program = glCreateProgram();
     glAttachShader(program, vertexshader) ;
     glAttachShader(program, fragmentshader) ;
     glLinkProgram(program) ;

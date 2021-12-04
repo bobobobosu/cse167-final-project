@@ -84,9 +84,9 @@
     <None Include="src\Scene.inl" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Light.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="src\Camera.cpp" />
+    <ClCompile Include="src\Light.cpp" />
     <ClCompile Include="src\Obj.cpp" />
     <ClCompile Include="src\Scene.cpp" />
     <ClCompile Include="src\Shader.cpp" />

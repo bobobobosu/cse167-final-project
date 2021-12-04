@@ -33,7 +33,6 @@ void Scene::createTexture(int width, int height) {
         glDrawBuffer(GL_NONE); // Omitting color data
         glReadBuffer(GL_NONE); // Omitting color data
         glClear(GL_DEPTH_BUFFER_BIT);
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
 }
 

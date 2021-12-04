@@ -22,6 +22,8 @@ static const int sheight = 1024;
 static const char* title = "Scene viewer";
 static const glm::vec4 background(0.1f, 0.2f, 0.3f, 1.0f);
 static Scene scene;
+static DepthShader* depthShader;
+static SurfaceShader* surfaceShader;
 
 #include "hw3AutoScreenshots.h"
 
