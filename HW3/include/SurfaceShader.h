@@ -26,13 +26,11 @@ struct SurfaceShader : Shader {
     GLuint shininess_loc;
     
     // lights
-    GLboolean enablelighting = GL_FALSE;   // are we lighting at all (global).
     GLint nlights = 0;                     // number of lights used
     std::vector<glm::vec4> lightpositions; // positions of lights
     std::vector<glm::vec4> lightcolors;    // colors of lights
     std::vector<glm::mat4> lightviews;
     std::vector<glm::mat4> lightprojs;
-    GLuint enablelighting_loc;
     GLuint nlights_loc;
     GLuint lightpositions_loc;
     GLuint lightcolors_loc;
@@ -48,7 +46,6 @@ struct SurfaceShader : Shader {
         specular_loc   = glGetUniformLocation( program, "specular" );
         emision_loc    = glGetUniformLocation( program, "emision" );
         shininess_loc  = glGetUniformLocation( program, "shininess" );
-        enablelighting_loc = glGetUniformLocation( program, "enablelighting" );
         nlights_loc = glGetUniformLocation( program, "nlights" );
         lightpositions_loc = glGetUniformLocation( program, "lightpositions" );
         lightcolors_loc = glGetUniformLocation( program, "lightcolors" );
@@ -64,7 +61,6 @@ struct SurfaceShader : Shader {
         glUniform4fv( specular_loc , 1, &(material -> specular[0]) );
         glUniform4fv( emision_loc  , 1, &(material -> emision[0])  );
         glUniform1fv( shininess_loc, 1, &(material -> shininess)   );
-        glUniform1i( enablelighting_loc, enablelighting );
         glUniform1i( nlights_loc, nlights );
         glUniform4fv( lightpositions_loc, GLsizei(nlights), &lightpositions[0][0] );
         glUniform4fv( lightcolors_loc, GLsizei(nlights), &lightcolors[0][0] );

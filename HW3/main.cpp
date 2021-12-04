@@ -115,10 +115,6 @@ void keyboard(unsigned char key, int x, int y){
             scene.camera -> zoom(1.1f);
             glutPostRedisplay();
             break;
-        case 'l':
-            surfaceShader -> enablelighting = !(surfaceShader -> enablelighting);
-            glutPostRedisplay();
-            break;
         case ' ':
             hw3AutoScreenshots();
             glutPostRedisplay();
