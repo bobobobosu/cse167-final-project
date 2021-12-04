@@ -44,19 +44,6 @@ void printHelp(){
 }
 
 void initialize(void){
-
-    // Create Surface Shader
-    surfaceShader = new SurfaceShader;
-    surfaceShader->read_source("shaders/projective.vert", "shaders/lighting.frag");
-    surfaceShader->compile();
-    surfaceShader->initUniforms();
-
-    //Create Depth Shader
-    depthShader = new DepthShader;
-    depthShader->read_source("shaders/lightspace.vert", "shaders/depth.frag");
-    depthShader->compile();
-    depthShader->initUniforms();
-
     printHelp();
     glClearColor(background[0], background[1], background[2], background[3]); // background color
     glViewport(0,0,width,height);
@@ -72,13 +59,13 @@ void initialize(void){
 void display(void){
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glViewport(0, 0, swidth, sheight);
-    glUseProgram(depthShader->program);
-    scene.drawShadowTexture(depthShader);
+    glUseProgram(scene.depthShader->program);
+    scene.drawShadowTexture();
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glViewport(0, 0, width, height);
-    glUseProgram(surfaceShader->program);
-    scene.draw(surfaceShader);
+    glUseProgram(scene.surfaceShader->program);
+    scene.draw();
 
     glutSwapBuffers();
     glFlush();
@@ -116,7 +103,7 @@ void keyboard(unsigned char key, int x, int y){
             glutPostRedisplay();
             break;
         case 'l':
-            surfaceShader -> enablelighting = !(surfaceShader -> enablelighting);
+            scene.surfaceShader -> enablelighting = !(scene.surfaceShader -> enablelighting);
             glutPostRedisplay();
             break;
         case ' ':
