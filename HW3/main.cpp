@@ -47,13 +47,13 @@ void initialize(void){
 
     // Create Surface Shader
     surfaceShader = new SurfaceShader;
-    surfaceShader->read_source("shaders/lightspace.vert", "shaders/lighting.frag");
+    surfaceShader->read_source("shaders/projective.vert", "shaders/lighting.frag");
     surfaceShader->compile();
     surfaceShader->initUniforms();
 
     //Create Depth Shader
     depthShader = new DepthShader;
-    depthShader->read_source("shaders/projective.vert", "shaders/depth.frag");
+    depthShader->read_source("shaders/lightspace.vert", "shaders/depth.frag");
     depthShader->compile();
     depthShader->initUniforms();
 

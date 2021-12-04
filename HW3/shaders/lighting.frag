@@ -75,6 +75,8 @@ void main (void) {
             // Multiply Light Color
             iterationColor = iterationColor * lightcolors[j];
             color += iterationColor;
+
+            //color = vec4(depthAtFragment);
         }
 
         fragColor = vec4(color);

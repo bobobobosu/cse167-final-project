@@ -10,6 +10,6 @@ void main (void) {
 	// Convert position to light position
 	vec4 lightBasedPos = modelview * position;
 
-	depth = vec4(lightBasedPos.z);
+	depth = vec4(lightBasedPos.z+5)*0.3;
 }
 	
