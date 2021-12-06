@@ -33,17 +33,17 @@ void Scene::createTexture(int width, int height) {
         glDrawBuffer(GL_NONE); // Omitting color data
         glReadBuffer(GL_NONE); // Omitting color data
         glClear(GL_DEPTH_BUFFER_BIT);
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
 }
 
 
 void Scene::drawShadowTexture() {
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    camera->far = 1.0f;
-    camera->near = 0.01f;
+    //glBindFramebuffer(GL_FRAMEBUFFER, 0);
     camera->computeMatrices();
     for (std::pair<std::string, Light*> entry : light) {
-        //glBindFramebuffer(GL_FRAMEBUFFER, (entry.second)->depthMapBuffer);
+        glBindFramebuffer(GL_FRAMEBUFFER, (entry.second)->depthMapBuffer);
+        glClear(GL_DEPTH_BUFFER_BIT);
 
         entry.second->computeMatrices(camera);
 
@@ -82,8 +82,7 @@ void Scene::drawShadowTexture() {
                 matrix_stack.push(cur_VM * cur->childtransforms[i]);
             }
         } // End of DFS while loop.
-
-        break;
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
 }
 

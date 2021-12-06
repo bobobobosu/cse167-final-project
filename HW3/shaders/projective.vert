@@ -24,5 +24,6 @@ void main(){
     vec4 globalPosition = inverse(view) * (modelview * vec4( vertex_position, 1.0f ));
     for(int i = 0; i < nlights; i++) {
         fragInLightSpace[i] = (lightprojs[i] * lightviews[i]) * globalPosition;
+        fragInLightSpace[i] = fragInLightSpace[i]/fragInLightSpace[i].w;
     }
 }

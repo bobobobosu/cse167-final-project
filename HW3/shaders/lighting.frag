@@ -24,8 +24,8 @@ uniform vec4 lightpositions[ maximal_allowed_lights ];
 uniform mat4 lightviews[maximal_allowed_lights];
 uniform vec4 lightcolors[ maximal_allowed_lights ];
 uniform sampler2D depthMap[ maximal_allowed_lights ];
-const float shadowBias = 0.02;
-const float minimumBias = 0.005;
+const float shadowBias = 0.001;
+const float minimumBias = 0.001;
 
 // Output the frag color
 out vec4 fragColor;
@@ -70,13 +70,14 @@ void main (void) {
             float depthAtFragment = textureCoordinates.z;
             float bias = max(shadowBias * (1.0 - dot(globalNormal, -normalize(lightviews[j][0].xyz))), minimumBias);
             float shadow = depthAtFragment - bias > depthAtTexture ? 1.f : 0.f;
+            shadow = depthAtFragment > depthAtTexture ? 1.f : 0.f;
             iterationColor *= 1 - shadow;
 
             // Multiply Light Color
             iterationColor = iterationColor * lightcolors[j];
             color += iterationColor;
-
-            //color = vec4(depthAtFragment);
+            //color = vec4(fragInLightSpace[j].z + 8) * 0.2;
+            //color = vec4(depthAtTexture);
         }
 
         fragColor = vec4(color);

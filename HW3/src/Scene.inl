@@ -71,7 +71,7 @@ void Scene::init(void){
     
     // Create a light palette
     light["sun0"] = new Light;
-    light["sun0"] -> position = vec4(0.0f,2.0f,0.0f,0.0f);
+    light["sun0"] -> position = vec4(3.0f,2.0f,1.0f,0.0f);
     light["sun0"] -> color = 1.0f*vec4(1.0f,1.0f,1.0f,1.0f);
 
     light["sun1"] = new Light;

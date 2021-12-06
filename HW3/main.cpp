@@ -17,8 +17,8 @@
 
 static const int width = 800;
 static const int height = 600;
-static const int swidth = 1024;
-static const int sheight = 1024;
+static const int swidth = 4000;
+static const int sheight = 4000;
 static const char* title = "Scene viewer";
 static const glm::vec4 background(0.1f, 0.2f, 0.3f, 1.0f);
 static Scene scene;
@@ -60,10 +60,10 @@ void display(void){
     glUseProgram(scene.depthShader->program);
     scene.drawShadowTexture();
 
-    //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    //glViewport(0, 0, width, height);
-    //glUseProgram(scene.surfaceShader->program);
-    //scene.draw();
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glViewport(0, 0, width, height);
+    glUseProgram(scene.surfaceShader->program);
+    scene.draw();
 
     glutSwapBuffers();
     glFlush();
