@@ -70,7 +70,7 @@ void main (void) {
             float depthAtFragment = textureCoordinates.z;
             float bias = max(shadowBias * (1.0 - dot(globalNormal, -normalize(lightviews[j][0].xyz))), minimumBias);
             float shadow = depthAtFragment - bias > depthAtTexture ? 1.f : 0.f;
-            shadow = depthAtFragment > depthAtTexture ? 1.f : 0.f;
+            //shadow = depthAtFragment > depthAtTexture ? 1.f : 0.f;
             iterationColor *= 1 - shadow;
 
             // Multiply Light Color

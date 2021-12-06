@@ -16,7 +16,7 @@ void Light::computeMatrices(Camera * camera) {
     // Mv view matrix to the light source
     glm::mat4 Mv = glm::lookAt( glm::vec3(position),
                                 glm::vec3(target4),
-                                glm::vec3(1.0f, 0.0f, 0.0f));
+                                glm::vec3(0.0f, 1.0f, 0.0f));
 
     // Mp projection matrix to the light source
     float left, right, top, bottom, far, near;
