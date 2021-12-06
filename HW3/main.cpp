@@ -36,9 +36,8 @@ void printHelp(){
       press the arrow keys to rotate camera.
       press 'A'/'Z' to zoom.
       press 'R' to reset camera.
-      press 'L' to turn on/off the lighting.
-    
-      press Spacebar to generate images for hw3 submission.
+      press 'P' to turn on/off Percentage Closer Filtering (PCF).
+      press Spacebar to generate images based on hw3 submission images.
     
 )";
 }
@@ -117,6 +116,10 @@ void keyboard(unsigned char key, int x, int y){
             break;
         case ' ':
             hw3AutoScreenshots();
+            glutPostRedisplay();
+            break;
+        case 'p':
+            surfaceShader->enablePCF = !surfaceShader->enablePCF;
             glutPostRedisplay();
             break;
         default:

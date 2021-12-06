@@ -36,6 +36,9 @@ struct SurfaceShader : Shader {
     GLuint lightcolors_loc;
     GLuint lightviews_loc;
     GLuint lightprojs_loc;
+
+    // shadowmap variables
+    GLboolean enablePCF = false; GLuint enablePCF_loc;
     
     void initUniforms(){
         view_loc  = glGetUniformLocation( program, "view" );
@@ -51,6 +54,7 @@ struct SurfaceShader : Shader {
         lightcolors_loc = glGetUniformLocation( program, "lightcolors" );
         lightviews_loc = glGetUniformLocation(program, "lightviews");
         lightprojs_loc = glGetUniformLocation(program, "lightprojs");
+        enablePCF_loc = glGetUniformLocation(program, "enablepcf");
     }
     void setUniforms(){
         glUniformMatrix4fv(view_loc, 1, GL_FALSE, &view[0][0]);
@@ -66,6 +70,7 @@ struct SurfaceShader : Shader {
         glUniform4fv( lightcolors_loc, GLsizei(nlights), &lightcolors[0][0] );
         glUniformMatrix4fv(lightviews_loc, GLsizei(nlights), GL_FALSE, &lightviews[0][0][0]);
         glUniformMatrix4fv(lightprojs_loc, GLsizei(nlights), GL_FALSE, &lightprojs[0][0][0]);
+        glUniform1i(enablePCF_loc, enablePCF);
     }
 };
 

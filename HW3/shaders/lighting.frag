@@ -25,8 +25,9 @@ uniform vec4 lightcolors[ maximal_allowed_lights ];
 
 // Shadow parameters
 uniform sampler2D depthMap[ maximal_allowed_lights ];
-const float shadowBias = 0.02;
+const float shadowBias = 0.01;
 const float minimumBias = 0.005;
+uniform bool enablepcf;
 
 // Output the frag color
 out vec4 fragColor;
@@ -66,10 +67,25 @@ void main (void) {
         // Add shadow
         if(dot(globalNormal, l_j) > 0) {
             vec3 textureCoordinates = fragInLightSpace[j].xyz * 0.5 + 0.5;
-            float depthAtTexture = texture(depthMap[j], textureCoordinates.xy).z;
             float depthAtFragment = textureCoordinates.z;
             float bias = max(shadowBias * (1.0 - dot(globalNormal, l_j)), minimumBias);
-            float shadow = depthAtFragment - bias > depthAtTexture ? 1.f : 0.f;
+            float shadow = 0.0f;
+            if(enablepcf) {
+                vec2 size = vec2(1.0f);
+                if(length(textureSize(depthMap[j], 0)) > 0.0f) {
+                    size = size / textureSize(depthMap[j], 0);
+                }
+                for(int x = 0; x < 3; x++) {
+                    for(int y = 0; y < 3; y++) {
+                        float depthAtTexture = texture(depthMap[j], vec2(textureCoordinates.x + ((x - 1) * size.x), textureCoordinates.y + ((y-1) * size.y))).z;
+                        shadow += depthAtFragment - bias > depthAtTexture ? 1.f : 0.f;
+                    }
+                }
+                shadow = shadow / 9.0f;
+            } else {
+                float depthAtTexture = texture(depthMap[j], textureCoordinates.xy).z;
+                shadow += depthAtFragment - bias > depthAtTexture ? 1.f : 0.f;
+            }   
             iterationColor *= 1 - shadow;
         }
 

@@ -99,10 +99,10 @@ void Scene::computeLightViewAndProj(Light* light, DepthShader* depthShader) {
 
     // Calculate Projection
     float left, right, top, bottom, far, near;
-    left   = -10.0f;
-    right  =  10.0f;
-    top    =  10.0f;
-    bottom = -10.0f;
+    left   = -4.0f;
+    right  =  4.0f;
+    top    =  4.0f;
+    bottom = -4.0f;
     far     = 7.5f;
     near    = 1.0f;
     light->proj = glm::mat4(2/(right - left), 0.0f,               0.0f,              -(right + left)/(right - left),
