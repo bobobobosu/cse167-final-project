@@ -60,10 +60,10 @@ void display(void){
     glUseProgram(scene.depthShader->program);
     scene.drawShadowTexture();
 
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glViewport(0, 0, width, height);
-    glUseProgram(scene.surfaceShader->program);
-    scene.draw();
+    //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    //glViewport(0, 0, width, height);
+    //glUseProgram(scene.surfaceShader->program);
+    //scene.draw();
 
     glutSwapBuffers();
     glFlush();

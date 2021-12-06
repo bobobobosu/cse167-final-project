@@ -16,7 +16,7 @@ Light is a class for a camera object.
 #define __LIGHT_H__
 
 #include <vector>
-
+#include "Camera.h"
 class Light {
 public:
     glm::vec4 position = glm::vec4(0.0f, 1.0f, 0.0f, 0.0f);
@@ -26,7 +26,7 @@ public:
     glm::mat4 view;
     glm::mat4 proj;
 
-    void computeMatrices(void);
+    void computeMatrices(Camera* camera);
 };
 
 #endif 

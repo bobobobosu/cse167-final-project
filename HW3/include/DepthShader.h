@@ -15,16 +15,22 @@ struct DepthShader : Shader {
     glm::mat4 view = glm::mat4(1.0f); GLuint view_loc;
     glm::mat4 modelview = glm::mat4(1.0f); GLuint modelview_loc;
     glm::mat4 projection = glm::mat4(1.0f); GLuint projection_loc;
+    glm::mat4 lightview = glm::mat4(1.0f); GLuint lightview_loc;
+    glm::mat4 lightprojection = glm::mat4(1.0f); GLuint lightprojection_loc;
 
     void initUniforms() {
         view_loc = glGetUniformLocation(program, "view");
         modelview_loc = glGetUniformLocation(program, "modelview");
         projection_loc = glGetUniformLocation(program, "projection");
+        lightview_loc = glGetUniformLocation(program, "lightview");
+        lightprojection_loc = glGetUniformLocation(program, "lightprojection");
     }
     void setUniforms() {
         glUniformMatrix4fv(view_loc, 1, GL_FALSE, &view[0][0]);
         glUniformMatrix4fv(modelview_loc, 1, GL_FALSE, &modelview[0][0]);
         glUniformMatrix4fv(projection_loc, 1, GL_FALSE, &projection[0][0]);
+        glUniformMatrix4fv(lightview_loc, 1, GL_FALSE, &lightview[0][0]);
+        glUniformMatrix4fv(lightprojection_loc, 1, GL_FALSE, &lightprojection[0][0]);
     }
 };
 

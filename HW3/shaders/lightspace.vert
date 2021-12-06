@@ -3,9 +3,9 @@
 layout (location = 0) in vec3 vertex_position;
 layout (location = 1) in vec3 vertex_normal;
 
-uniform mat4 modelview;
-uniform mat4 projection;
-uniform mat4 view;      // from world coord to eye coord
+uniform mat4 modelview;   // model -> world
+uniform mat4 projection;  // proj
+uniform mat4 view;        // world -> eye
 
 out vec4 position;
 out vec3 normal;

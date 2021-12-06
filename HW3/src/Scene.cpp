@@ -38,11 +38,14 @@ void Scene::createTexture(int width, int height) {
 
 
 void Scene::drawShadowTexture() {
-
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    camera->far = 1.0f;
+    camera->near = 0.01f;
+    camera->computeMatrices();
     for (std::pair<std::string, Light*> entry : light) {
-        glBindFramebuffer(GL_FRAMEBUFFER, (entry.second)->depthMapBuffer);
+        //glBindFramebuffer(GL_FRAMEBUFFER, (entry.second)->depthMapBuffer);
 
-        entry.second->computeMatrices();
+        entry.second->computeMatrices(camera);
 
         depthShader->view = entry.second->view;
         depthShader->projection = entry.second->proj;
@@ -79,6 +82,8 @@ void Scene::drawShadowTexture() {
                 matrix_stack.push(cur_VM * cur->childtransforms[i]);
             }
         } // End of DFS while loop.
+
+        break;
     }
 }
 
