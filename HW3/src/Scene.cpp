@@ -129,8 +129,10 @@ void Scene::draw(SurfaceShader* surfaceShader) {
         surfaceShader->lightcolors[count] = (entry.second)->color;
         surfaceShader->lightviews[count] = (entry.second)->view;
         surfaceShader->lightprojs[count] = (entry.second)->proj;
-        //glActiveTexture(GL_TEXTURE0 + count);
-        //glBindTexture(GL_TEXTURE_2D, entry.second->depthMap);
+        glActiveTexture(GL_TEXTURE0 + count);
+        glBindTexture(GL_TEXTURE_2D, entry.second->depthMap);
+        if (count == 0) glUniform1ui(surfaceShader->depthmap0_loc, count);
+        if (count == 1) glUniform1ui(surfaceShader->depthmap1_loc, count);
         count++;
     }
 

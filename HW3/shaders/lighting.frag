@@ -26,7 +26,6 @@ uniform vec4 lightcolors[ maximal_allowed_lights ];
 // Shadow parameters
 uniform sampler2D depthMap0;
 uniform sampler2D depthMap1;
-uniform sampler2D depthMap2;
 const float shadowBias = 0.01;
 const float minimumBias = 0.005;
 uniform bool enablepcf;
@@ -100,9 +99,6 @@ void main (void) {
                 break;
             case 1:
                 shadow = applyShadow(depthMap1, globalNormal, l_j, fragInLightSpace[j]);
-                break;
-            case 2:
-                shadow = applyShadow(depthMap2, globalNormal, l_j, fragInLightSpace[j]);
                 break;
         }
         
