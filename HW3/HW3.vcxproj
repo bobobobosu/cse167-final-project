@@ -14,7 +14,7 @@
     <ProjectGuid>{842C9BC8-1077-4E21-8E0A-8786814B8B9B}</ProjectGuid>
     <RootNamespace>cse167-hw2-windows</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-    <ProjectName>HW3</ProjectName>
+    <ProjectName>ShadowMapping</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
