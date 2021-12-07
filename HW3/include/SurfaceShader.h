@@ -39,6 +39,7 @@ struct SurfaceShader : Shader {
 
     // shadowmap variables
     GLboolean enablePCF = false; GLuint enablePCF_loc;
+    GLuint depthmap0_loc, depthmap1_loc, depthmap2_loc;
     
     void initUniforms(){
         view_loc  = glGetUniformLocation( program, "view" );
@@ -55,6 +56,9 @@ struct SurfaceShader : Shader {
         lightviews_loc = glGetUniformLocation(program, "lightviews");
         lightprojs_loc = glGetUniformLocation(program, "lightprojs");
         enablePCF_loc = glGetUniformLocation(program, "enablepcf");
+        depthmap0_loc = glGetUniformLocation(program, "depthMap0");
+        depthmap1_loc = glGetUniformLocation(program, "depthMap1");
+        depthmap2_loc = glGetUniformLocation(program, "depthMap2");
     }
     void setUniforms(){
         glUniformMatrix4fv(view_loc, 1, GL_FALSE, &view[0][0]);
@@ -71,6 +75,9 @@ struct SurfaceShader : Shader {
         glUniformMatrix4fv(lightviews_loc, GLsizei(nlights), GL_FALSE, &lightviews[0][0][0]);
         glUniformMatrix4fv(lightprojs_loc, GLsizei(nlights), GL_FALSE, &lightprojs[0][0][0]);
         glUniform1i(enablePCF_loc, enablePCF);
+        glUniform1ui(depthmap0_loc, 1);
+        glUniform1ui(depthmap1_loc, 2);
+        glUniform1ui(depthmap2_loc, 3);
     }
 };
 

@@ -24,13 +24,41 @@ uniform mat4 lightviews[maximal_allowed_lights];
 uniform vec4 lightcolors[ maximal_allowed_lights ];
 
 // Shadow parameters
-uniform sampler2D depthMap[ maximal_allowed_lights ];
+uniform sampler2D depthMap0;
+uniform sampler2D depthMap1;
+uniform sampler2D depthMap2;
 const float shadowBias = 0.01;
 const float minimumBias = 0.005;
 uniform bool enablepcf;
 
 // Output the frag color
 out vec4 fragColor;
+
+float applyShadow(sampler2D depthMap, vec3 globalNormal, vec3 l_j, vec4 currentFragInLightSpace) {
+
+    if(dot(globalNormal, l_j) > 0) {
+        vec3 textureCoordinates = currentFragInLightSpace.xyz * 0.5 + 0.5;
+        float depthAtFragment = textureCoordinates.z;
+        float bias = max(shadowBias * (1.0 - dot(globalNormal, l_j)), minimumBias);
+        float shadow = 0.0f;
+        if(enablepcf) {
+            vec2 size = vec2(1.0f)/textureSize(depthMap, 0);
+            for(int x = 0; x < 3; x++) {
+                for(int y = 0; y < 3; y++) {
+                    float depthAtTexture = texture(depthMap, vec2(textureCoordinates.x + ((x - 1) * size.x), textureCoordinates.y + ((y-1) * size.y))).z;
+                    shadow += depthAtFragment - bias > depthAtTexture ? 1.f : 0.f;
+                }
+            }
+            shadow = shadow / 9.0f;
+        } else {
+            float depthAtTexture = texture(depthMap, textureCoordinates.xy).z;
+            shadow += depthAtFragment - bias > depthAtTexture ? 1.f : 0.f;
+        }   
+        return shadow;
+    }
+
+    return 0.0f;
+}
 
 void main (void) {
     // Convert everything into a global position
@@ -65,30 +93,20 @@ void main (void) {
         iterationColor += specular * pow(max(dot(globalNormal, h_j), 0), shininess);
 
         // Add shadow
-        if(dot(globalNormal, l_j) > 0) {
-            vec3 textureCoordinates = fragInLightSpace[j].xyz * 0.5 + 0.5;
-            float depthAtFragment = textureCoordinates.z;
-            float bias = max(shadowBias * (1.0 - dot(globalNormal, l_j)), minimumBias);
-            float shadow = 0.0f;
-            if(enablepcf) {
-                vec2 size = vec2(1.0f);
-                if(length(textureSize(depthMap[j], 0)) > 0.0f) {
-                    size = size / textureSize(depthMap[j], 0);
-                }
-                for(int x = 0; x < 3; x++) {
-                    for(int y = 0; y < 3; y++) {
-                        float depthAtTexture = texture(depthMap[j], vec2(textureCoordinates.x + ((x - 1) * size.x), textureCoordinates.y + ((y-1) * size.y))).z;
-                        shadow += depthAtFragment - bias > depthAtTexture ? 1.f : 0.f;
-                    }
-                }
-                shadow = shadow / 9.0f;
-            } else {
-                float depthAtTexture = texture(depthMap[j], textureCoordinates.xy).z;
-                shadow += depthAtFragment - bias > depthAtTexture ? 1.f : 0.f;
-            }   
-            iterationColor *= 1 - shadow;
+        float shadow = 0.0f;
+        switch(j) {
+            case 0:
+                shadow = applyShadow(depthMap0, globalNormal, l_j, fragInLightSpace[j]);
+                break;
+            case 1:
+                shadow = applyShadow(depthMap1, globalNormal, l_j, fragInLightSpace[j]);
+                break;
+            case 2:
+                shadow = applyShadow(depthMap2, globalNormal, l_j, fragInLightSpace[j]);
+                break;
         }
-
+        
+        iterationColor *= 1 - shadow;
 
         // Multiply Light Color
         iterationColor = iterationColor * lightcolors[j];
@@ -97,3 +115,5 @@ void main (void) {
 
     fragColor = vec4(color);
 }
+
+

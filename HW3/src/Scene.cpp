@@ -129,10 +129,12 @@ void Scene::draw(SurfaceShader* surfaceShader) {
         surfaceShader->lightcolors[count] = (entry.second)->color;
         surfaceShader->lightviews[count] = (entry.second)->view;
         surfaceShader->lightprojs[count] = (entry.second)->proj;
-        glActiveTexture(GL_TEXTURE0 + count);
-        glBindTexture(GL_TEXTURE_2D, (entry.second)->depthMap);
+        //glActiveTexture(GL_TEXTURE0 + count);
+        //glBindTexture(GL_TEXTURE_2D, entry.second->depthMap);
         count++;
     }
+
+
     // Define stacks for depth-first search (DFS)
     std::stack < Node* > dfs_stack;
     std::stack < mat4 >  matrix_stack; // HW3: You will update this matrix_stack during the depth-first search while loop.
