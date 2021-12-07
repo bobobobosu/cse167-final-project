@@ -74,9 +74,9 @@ void Scene::init(void){
     light["sun0"] -> position = vec4(3.0f,2.0f,1.0f,0.0f);
     light["sun0"] -> color = 1.0f*vec4(1.0f,1.0f,1.0f,1.0f);
 
-    light["sun1"] = new Light;
-    light["sun1"]->position = vec4(-3.0f, 2.0f, -1.0f, 0.0f);
-    light["sun1"]->color = 1.0f * vec4(1.0f, 1.0f, 1.0f, 1.0f);
+    //light["sun1"] = new Light;
+    //light["sun1"]->position = vec4(-3.0f, 2.0f, -1.0f, 0.0f);
+    //light["sun1"]->color = 1.0f * vec4(1.0f, 1.0f, 1.0f, 1.0f);
     
     //light["bulb"] = new Light;
     //light["bulb"] -> position = vec4(0.0f,2.0f,0.0f,0.0f);

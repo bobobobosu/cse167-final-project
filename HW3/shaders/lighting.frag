@@ -35,28 +35,27 @@ out vec4 fragColor;
 
 float applyShadow(sampler2D depthMap, vec3 globalNormal, vec3 l_j, vec4 currentFragInLightSpace) {
 
-    if(dot(globalNormal, l_j) > 0) {
-        vec3 textureCoordinates = currentFragInLightSpace.xyz * 0.5 + 0.5;
-        float depthAtFragment = textureCoordinates.z;
-        float bias = max(shadowBias * (1.0 - dot(globalNormal, l_j)), minimumBias);
-        float shadow = 0.0f;
-        if(enablepcf) {
-            vec2 size = vec2(1.0f)/textureSize(depthMap, 0);
-            for(int x = 0; x < 3; x++) {
-                for(int y = 0; y < 3; y++) {
-                    float depthAtTexture = texture(depthMap, vec2(textureCoordinates.x + ((x - 1) * size.x), textureCoordinates.y + ((y-1) * size.y))).z;
-                    shadow += depthAtFragment - bias > depthAtTexture ? 1.f : 0.f;
-                }
+    // if normal (dot) light_direction is less than 
+    if(dot(globalNormal, l_j) <= 0) return 0.f;
+    vec3 textureCoordinates = currentFragInLightSpace.xyz * 0.5 + 0.5;
+    float depthAtFragment = textureCoordinates.z;
+    float bias = max(shadowBias * (1.0 - dot(globalNormal, l_j)), minimumBias);
+    float shadow = 0.0f;
+    if(enablepcf) {
+        vec2 size = vec2(1.0f)/textureSize(depthMap, 0);
+        for(int x = 0; x < 3; x++) {
+            for(int y = 0; y < 3; y++) {
+                float depthAtTexture = texture(depthMap, vec2(textureCoordinates.x + ((x - 1) * size.x), textureCoordinates.y + ((y-1) * size.y))).z;
+                shadow += depthAtFragment - bias > depthAtTexture ? 1.f : 0.f;
             }
-            shadow = shadow / 9.0f;
-        } else {
-            float depthAtTexture = texture(depthMap, textureCoordinates.xy).z;
-            shadow += depthAtFragment - bias > depthAtTexture ? 1.f : 0.f;
-        }   
-        return shadow;
+        }
+        shadow = shadow / 9.0f;
+    } else {
+        float depthAtTexture = texture(depthMap, textureCoordinates.xy).z;
+        shadow += depthAtFragment - bias > depthAtTexture ? 1.f : 0.f;
     }
+    return shadow;
 
-    return 0.0f;
 }
 
 void main (void) {
