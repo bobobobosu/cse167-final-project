@@ -29,6 +29,10 @@ static SurfaceShader* surfaceShader;
 
 void printHelp(){
     std::cout << R"(
+    Top-Left:     LiSPSM
+    Top-Right:    LiSPSM + PCF
+    Bottom-Left:  Base
+    Bottom-Right: PCF
     Available commands:
       press 'H' to print this message again.
       press Esc to quit.
