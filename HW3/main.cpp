@@ -36,8 +36,9 @@ void printHelp(){
       press the arrow keys to rotate camera.
       press 'A'/'Z' to zoom.
       press 'R' to reset camera.
-      press 'P' to turn on/off Percentage Closer Filtering (PCF).
-      press 'B'/'N' to increase/decrease shadowBias.
+      press 'B'/'b' to increase/decrease shadowBias.
+      press 'N'/'n' to increase/decrease free parameter n.
+      press 'S'/'s' to rotate the sun to different direction.
       press Spacebar to generate images based on hw3 submission images.
     
 )";
