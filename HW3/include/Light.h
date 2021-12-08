@@ -27,7 +27,7 @@ public:
     glm::mat4 proj;
 
     void computeNaive(Camera* camera);
-    void computeLiSPSM(Camera* camera);
+    void computeLiSPSM(Camera* camera, float free_param_n);
 };
 
 #endif 

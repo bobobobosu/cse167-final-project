@@ -26,7 +26,7 @@ uniform vec4 lightcolors[ maximal_allowed_lights ];
 // Shadow parameters
 uniform sampler2D depthMap0;
 uniform sampler2D depthMap1;
-const float shadowBias = 0.01;
+uniform float shadowBias;
 const float minimumBias = 0.005;
 uniform bool enablepcf;
 
@@ -39,7 +39,7 @@ float applyShadow(sampler2D depthMap, vec3 globalNormal, vec3 l_j, vec4 currentF
     if(dot(globalNormal, l_j) <= 0) return 0.f;
     vec3 textureCoordinates = currentFragInLightSpace.xyz * 0.5 + 0.5;
     float depthAtFragment = textureCoordinates.z;
-    float bias = max(shadowBias * (1.0 - dot(globalNormal, l_j)), minimumBias);
+    float bias = max(shadowBias * (1.0 - dot(globalNormal, l_j)),  min(minimumBias, shadowBias));
     float shadow = 0.0f;
     if(enablepcf) {
         vec2 size = vec2(1.0f)/textureSize(depthMap, 0);
@@ -109,6 +109,7 @@ void main (void) {
     }
 
     fragColor = vec4(color);
+    //fragColor = abs(globalPosition.y) > 2 ? vec4(color) : vec4(0.0f);
 }
 
 

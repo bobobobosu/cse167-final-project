@@ -9,6 +9,6 @@ out vec4 depth; // output the depth
 void main (void) {
 	// Convert position to light position
 	vec4 lightBasedPos = modelview * position;
-	depth = vec4(lightBasedPos.z);
+	depth = vec4(lightBasedPos.z + 8 )*0.2;
 }
 	

@@ -37,61 +37,51 @@ void Scene::createTexture(int width, int height) {
     }
 }
 
-void Scene::drawShadowTexture(DepthShader* depthShader, int framebuffermode, int shadowmode) {
-    camera->computeMatrices();
-    for (int mode = 0; mode < 2; mode++) {
-        for (std::pair<std::string, Light*> entry : light) {
-            if (framebuffermode == 0) glBindFramebuffer(GL_FRAMEBUFFER, 0);
-            if (framebuffermode == 1) glBindFramebuffer(GL_FRAMEBUFFER, (entry.second)->depthMapBuffer);
-            glClear(GL_DEPTH_BUFFER_BIT);
+void Scene::drawShadowTexture(DepthShader* depthShader) {
 
-            if (shadowmode == 0) entry.second->computeNaive(camera);
-            if (shadowmode == 1) entry.second->computeLiSPSM(camera, free_param_n);
-            
+    for (std::pair<std::string, Light*> entry : light) {
+        glBindFramebuffer(GL_FRAMEBUFFER, (entry.second)->depthMapBuffer);
 
-            depthShader->view = entry.second->view;
-            depthShader->projection = entry.second->proj;
+        // Render Scene
+        computeLightViewAndProj(entry.second, depthShader);
 
+        std::stack < Node* > dfs_stack;
+        std::stack < mat4 >  matrix_stack;
 
-            std::stack < Node* > dfs_stack;
-            std::stack < mat4 >  matrix_stack;
+        Node* cur = node["world"];
+        mat4 cur_VM = depthShader->view;
 
-            Node* cur = node["world"];
-            mat4 cur_VM = depthShader->view;
+        dfs_stack.push(cur);
+        matrix_stack.push(cur_VM);
+        while (!dfs_stack.empty()) {
 
-            dfs_stack.push(cur);
-            matrix_stack.push(cur_VM);
-            while (!dfs_stack.empty()) {
+            // top-pop the stacks
+            cur = dfs_stack.top();
+            dfs_stack.pop();
+            cur_VM = matrix_stack.top();
+            matrix_stack.pop();
 
-                // top-pop the stacks
-                cur = dfs_stack.top();
-                dfs_stack.pop();
-                cur_VM = matrix_stack.top();
-                matrix_stack.pop();
+            // draw all the models at the current node
+            for (unsigned int i = 0; i < cur->models.size(); i++) {
 
-                // draw all the models at the current node
-                for (unsigned int i = 0; i < cur->models.size(); i++) {
+                depthShader->modelview = cur_VM * (cur->modeltransforms[i]);
 
-                    depthShader->modelview = cur_VM * (cur->modeltransforms[i]);
+                // The draw command
+                depthShader->setUniforms();
+                (cur->models[i])->geometry->draw();
+            }
 
-                    // The draw command
-                    depthShader->setUniforms();
-                    (cur->models[i])->geometry->draw();
-                }
-
-                // Continue the DFS: put all the child nodes of the current node in the stack
-                for (unsigned int i = 0; i < cur->childnodes.size(); i++) {
-                    dfs_stack.push(cur->childnodes[i]);
-                    matrix_stack.push(cur_VM * cur->childtransforms[i]);
-                }
-            } // End of DFS while loop.
-        }
+            // Continue the DFS: put all the child nodes of the current node in the stack
+            for (unsigned int i = 0; i < cur->childnodes.size(); i++) {
+                dfs_stack.push(cur->childnodes[i]);
+                matrix_stack.push(cur_VM * cur->childtransforms[i]);
+            }
+        } // End of DFS while loop.
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
-
 }
 
 void Scene::draw(SurfaceShader* surfaceShader) {
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
     // Pre-draw sequence: assign uniforms that are the same for all Geometry::draw call.  These uniforms include the camera view, proj, and the lights.  These uniform do not include modelview and material parameters.
     camera->computeMatrices();
     surfaceShader->view = camera->view;

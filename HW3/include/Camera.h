@@ -30,6 +30,8 @@ public:
     glm::mat4 view = glm::mat4(1.0f);   // view matrix
     glm::mat4 proj = glm::mat4(1.0f);   // projection matrix
     
+    glm::mat3 Camera::rotation(const float degrees, const glm::vec3 axis);
+
     void rotateRight(const float degrees);
     void rotateUp(const float degrees);
     void zoom(const float factor);

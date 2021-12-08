@@ -16,7 +16,7 @@ glm::vec4 qmultiply(const glm::vec4 p, const glm::vec4 q){
 // Quaternion conjugation
 glm::vec4 qconj(const glm::vec4 q){return glm::vec4(-q.x,-q.y,-q.z,q.w);}
 
-glm::mat3 rotation(const float degrees,const glm::vec3 axis){
+glm::mat3 Camera::rotation(const float degrees,const glm::vec3 axis){
     const float angle = degrees * M_PI/180.0f; // convert to radians
     const glm::vec3 a = glm::normalize(axis);
     glm::mat3 R;

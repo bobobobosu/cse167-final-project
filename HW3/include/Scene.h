@@ -45,6 +45,10 @@ public:
     // The container of nodes will be the scene graph after we connect the nodes by setting the child_nodes.
     std::map< std::string, Node* > node;
 
+    // Our messy vars
+    float free_param_n = -1; // defaults to n_opt
+    float rotate_sun_0 = 0; // rotates the sun around
+
     Scene(){
         // the default scene graph already has one node named "world."
         node["world"] = new Node;
@@ -52,8 +56,7 @@ public:
     
     void init( void );
     void createTexture( int width, int height );
-    void drawShadowTexture( DepthShader* depthShader );
-    void computeLightViewAndProj( Light* light, DepthShader* depthShader );
+    void drawShadowTexture( DepthShader* depthShader, int framebuffermode, int shadowmode);
     void draw( SurfaceShader* surfaceShader );
     
     // destructor

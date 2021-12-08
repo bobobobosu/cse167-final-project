@@ -36,7 +36,7 @@ void Light::computeNaive(Camera* camera) {
 }
 
 // Computes light view & projection matrix
-void Light::computeLiSPSM(Camera * camera) {
+void Light::computeLiSPSM(Camera * camera, float free_param_n) {
     camera->computeMatrices();
     // Calculate View
     glm::vec4 target4(0.0f, 0.0f, 0.0f, 1.0f);
@@ -85,15 +85,19 @@ void Light::computeLiSPSM(Camera * camera) {
     //    glm::inverse(camera->proj * camera->view) * vec4(1.0f, 1.0f, 1.0f, 1.0f),
     //};
     vec4 gs_camera_frustim_points[8] = {
-    vec4(10.0f, 10.0f, 10.0f, 1.0f),
-    vec4(10.0f, 10.0f, -10.0f, 1.0f),
-    vec4(10.0f, -10.0f, 10.0f, 1.0f),
-    vec4(10.0f, -10.0f, -10.0f, 1.0f),
-    vec4(-10.0f, 10.0f, 10.0f, 1.0f),
-    vec4(-10.0f, 10.0f, -10.0f, 1.0f),
-    vec4(-10.0f, -10.0f, 10.0f, 1.0f),
-    vec4(-10.0f, -10.0f, -10.0f, 1.0f),
+    vec4(-2.5f, -2.0f, 2.0f, 1.0f),
+    vec4(-2.5f, -2.0f, -2.0f, 1.0f),
+    vec4(-2.5f, 2.0f, 2.0f, 1.0f),
+    vec4(-2.5f, 2.0f, -2.0f, 1.0f),
+    vec4(2.5f, -2.0f, 2.0f, 1.0f),
+    vec4(2.5f, -2.0f, -2.0f, 1.0f),
+    vec4(2.5f, 2.0f, 2.0f, 1.0f),
+    vec4(2.5f, 2.0f, -2.0f, 1.0f),
     };
+    for (int i = 0; i < 8; i++) {
+        gs_camera_frustim_points[i] = vec4(vec3(1.0f * gs_camera_frustim_points[i]), 1.0f);
+    }
+
     // view in P_basis
     vec4 P_basis_camera_frustim_points[8];
     for (int i = 0; i < 8; i++) {
@@ -114,7 +118,8 @@ void Light::computeLiSPSM(Camera * camera) {
     float d = std::abs(p_far - p_near);
     float zn = std::abs(p_near - P_basis_camera.z);
     float zf = std::abs(p_far - P_basis_camera.z);
-    float n_opt = zn + glm::sqrt(zn * zf);
+    float n_opt = free_param_n == -1 ? zn + glm::sqrt(zn * zf) : free_param_n;
+    
     
     // find point p offset in rotated light space (thus creating transformation from rotated lightspace origin to p)
     vec3 P_basis_point_p_offset;

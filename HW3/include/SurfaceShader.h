@@ -26,7 +26,8 @@ struct SurfaceShader : Shader {
     GLuint shininess_loc;
     
     // lights
-    GLint nlights = 0;                     // number of lights used
+    GLint nlights = 0;
+    GLfloat shadowBias = 0.01;                     // number of lights used
     std::vector<glm::vec4> lightpositions; // positions of lights
     std::vector<glm::vec4> lightcolors;    // colors of lights
     std::vector<glm::mat4> lightviews;
@@ -36,6 +37,7 @@ struct SurfaceShader : Shader {
     GLuint lightcolors_loc;
     GLuint lightviews_loc;
     GLuint lightprojs_loc;
+    GLuint shadowBias_loc;
 
     // shadowmap variables
     GLboolean enablePCF = false; GLuint enablePCF_loc;
@@ -51,6 +53,7 @@ struct SurfaceShader : Shader {
         emision_loc    = glGetUniformLocation( program, "emision" );
         shininess_loc  = glGetUniformLocation( program, "shininess" );
         nlights_loc = glGetUniformLocation( program, "nlights" );
+        shadowBias_loc = glGetUniformLocation(program, "shadowBias");
         lightpositions_loc = glGetUniformLocation( program, "lightpositions" );
         lightcolors_loc = glGetUniformLocation( program, "lightcolors" );
         lightviews_loc = glGetUniformLocation(program, "lightviews");
@@ -69,6 +72,7 @@ struct SurfaceShader : Shader {
         glUniform4fv( emision_loc  , 1, &(material -> emision[0])  );
         glUniform1fv( shininess_loc, 1, &(material -> shininess)   );
         glUniform1i( nlights_loc, nlights );
+        glUniform1fv(shadowBias_loc, 1, &(shadowBias));
         glUniform4fv( lightpositions_loc, GLsizei(nlights), &lightpositions[0][0] );
         glUniform4fv( lightcolors_loc, GLsizei(nlights), &lightcolors[0][0] );
         glUniformMatrix4fv(lightviews_loc, GLsizei(nlights), GL_FALSE, &lightviews[0][0][0]);

@@ -15,8 +15,8 @@
 #include "Screenshot.h"
 #include "Scene.h"
 
-static const int width = 800;
-static const int height = 600;
+static const int width = 400;
+static const int height = 300;
 static const int swidth = 1024;
 static const int sheight = 1024;
 static const char* title = "Scene viewer";
@@ -37,6 +37,7 @@ void printHelp(){
       press 'A'/'Z' to zoom.
       press 'R' to reset camera.
       press 'P' to turn on/off Percentage Closer Filtering (PCF).
+      press 'B'/'N' to increase/decrease shadowBias.
       press Spacebar to generate images based on hw3 submission images.
     
 )";
@@ -70,12 +71,63 @@ void initialize(void){
 
 void display(void){
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    surfaceShader->enablePCF = 0;
+
+    //// naive
+    glViewport(width, 0, width, height);
+    glUseProgram(depthShader->program);
+    scene.drawShadowTexture(depthShader, 0, 0);
+
     glViewport(0, 0, swidth, sheight);
     glUseProgram(depthShader->program);
-    scene.drawShadowTexture(depthShader);
+    scene.drawShadowTexture(depthShader, 1, 0);
 
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glViewport(0, 0, width, height);
+    glUseProgram(surfaceShader->program);
+    scene.draw(surfaceShader);
+
+
+    // LiSPSM
+    glViewport(width, height, width, height);
+    glUseProgram(depthShader->program);
+    scene.drawShadowTexture(depthShader, 0, 1);
+
+    glViewport(0, 0, swidth, sheight);
+    glUseProgram(depthShader->program);
+    scene.drawShadowTexture(depthShader, 1, 1);
+
+    glViewport(0, height, width, height);
+    glUseProgram(surfaceShader->program);
+    scene.draw(surfaceShader);
+
+    // Enable PCF
+    surfaceShader->enablePCF = 1;
+
+    //// naive + PCF
+    glViewport(2* width + width, 0, width, height);
+    glUseProgram(depthShader->program);
+    scene.drawShadowTexture(depthShader, 0, 0);
+
+    glViewport(0, 0, swidth, sheight);
+    glUseProgram(depthShader->program);
+    scene.drawShadowTexture(depthShader, 1, 0);
+
+    glViewport(2 * width, 0, width, height);
+    glUseProgram(surfaceShader->program);
+    scene.draw(surfaceShader);
+
+
+    // LiSPSM + PCF
+    glViewport(2 * width + width, height, width, height);
+    glUseProgram(depthShader->program);
+    scene.drawShadowTexture(depthShader, 0, 1);
+
+    glViewport(0, 0, swidth, sheight);
+    glUseProgram(depthShader->program);
+    scene.drawShadowTexture(depthShader, 1, 1);
+
+    glViewport(2 * width, height, width, height);
     glUseProgram(surfaceShader->program);
     scene.draw(surfaceShader);
 
@@ -102,7 +154,7 @@ void keyboard(unsigned char key, int x, int y){
             saveScreenShot();
             break;
         case 'r':
-            scene.camera -> aspect_default = float(glutGet(GLUT_WINDOW_WIDTH))/float(glutGet(GLUT_WINDOW_HEIGHT));
+            //scene.camera -> aspect_default = float(glutGet(GLUT_WINDOW_WIDTH))/float(glutGet(GLUT_WINDOW_HEIGHT));
             scene.camera -> reset();
             glutPostRedisplay();
             break;
@@ -118,8 +170,35 @@ void keyboard(unsigned char key, int x, int y){
             hw3AutoScreenshots();
             glutPostRedisplay();
             break;
-        case 'p':
-            surfaceShader->enablePCF = !surfaceShader->enablePCF;
+        // bias adjustment
+        case 'B':
+            surfaceShader->shadowBias += 0.001;
+            std::cout << "shadowBias=" << surfaceShader->shadowBias << std::endl;
+            glutPostRedisplay();
+            break;
+        case 'b':
+            surfaceShader->shadowBias -= 0.001;
+            std::cout << "shadowBias=" << surfaceShader->shadowBias << std::endl;
+            glutPostRedisplay();
+            break;
+        case 'N':
+            scene.free_param_n += 0.5;
+            std::cout << "free_param_n=" << scene.free_param_n << std::endl;
+            glutPostRedisplay();
+            break;
+        case 'n':
+            scene.free_param_n -= 0.5;
+            std::cout << "free_param_n=" << scene.free_param_n << std::endl;
+            glutPostRedisplay();
+            break;
+        case 'S':
+            scene.light["sun0"]->position = glm::vec4(scene.camera->rotation(15.0f, glm::vec3(0.0f, 1.0f, 0.0f)) * glm::vec3(scene.light["sun0"]->position), 0.0f);
+            std::cout << "sun_position=" << "(" << scene.light["sun0"]->position.x << "," << scene.light["sun0"]->position.y << "," << scene.light["sun0"]->position.z << ")" << std::endl;
+            glutPostRedisplay();
+            break;
+        case 's':
+            scene.light["sun0"]->position = glm::vec4(scene.camera->rotation(-15.0f, glm::vec3(0.0f, 1.0f, 0.0f)) * glm::vec3(scene.light["sun0"]->position), 0.0f);
+            std::cout << "sun_position=" << "(" << scene.light["sun0"]->position.x << "," << scene.light["sun0"]->position.y << "," << scene.light["sun0"]->position.z << ")" << std::endl;
             glutPostRedisplay();
             break;
         default:
